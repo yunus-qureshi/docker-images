@@ -26,12 +26,14 @@ FROM oraclelinux:7-slim as base
 # ----------
 MAINTAINER Gerald Venzl <gerald.venzl@oracle.com>
 
+ARG GOLDIMAGE_NAME
+
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
 ENV ORACLE_BASE=/opt/oracle \
     ORACLE_HOME=/opt/oracle/product/20c/dbhome_1 \
     INSTALL_DIR=/opt/install \
-    INSTALL_FILE_1="LINUX.X64_203000_db_home.zip" \
+    INSTALL_FILE_1=${GOLDIMAGE_NAME:-LINUX.X64_203000_db_home.zip} \
     INSTALL_RSP="db_inst.rsp" \
     CONFIG_RSP="dbca.rsp.tmpl" \
     PWD_FILE="setPassword.sh" \

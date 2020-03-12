@@ -1,12 +1,12 @@
 #!/bin/bash
 # LICENSE UPL 1.0
 #
-# Copyright (c) 1982-2018 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 1982-2020 Oracle and/or its affiliates. All rights reserved.
 #
-# Since: November, 2016
-# Author: gerald.venzl@oracle.com
-# Description: Starts the Listener and Oracle Database.
-#              The ORACLE_HOME and the PATH has to be set.
+# Since: November, 2020
+# Author: mohammed.qureshi@oracle.com
+# Description: Refreshes file locks 
+#
 #
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 #

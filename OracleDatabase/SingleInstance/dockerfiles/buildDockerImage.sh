@@ -12,13 +12,12 @@
 usage() {
   cat << EOF
 
-Usage: buildDockerImage.sh -v [version] -n [goldimage_name] [-e | -s | -x] [-i] [-o] [Docker build option]
+Usage: buildDockerImage.sh -v [version] [-e | -s | -x] [-i] [-o] [Docker build option]
 Builds a Docker Image for Oracle Database.
   
 Parameters:
    -v: version to build
        Choose one of: $(for i in $(ls -d */); do echo -n "${i%%/}  "; done)
-   -n: goldimage_name (can be used optionally for 20c)
    -e: creates image based on 'Enterprise Edition'
    -s: creates image based on 'Standard Edition 2'
    -x: creates image based on 'Express Edition'
@@ -98,14 +97,13 @@ DOCKEROPS=""
 MIN_DOCKER_VERSION="17.09"
 MIN_PODMAN_VERSION="1.6.0"
 DOCKERFILE="Dockerfile"
-GOLDIMAGE_NAME=""
 
 if [ "$#" -eq 0 ]; then
   usage;
   exit 1;
 fi
 
-while getopts "hesxiv:n:o:" optname; do
+while getopts "hesxiv:o:" optname; do
   case "$optname" in
     "h")
       usage
@@ -125,9 +123,6 @@ while getopts "hesxiv:n:o:" optname; do
       ;;
     "v")
       VERSION="$OPTARG"
-      ;;
-    "n")
-      GOLDIMAGE_NAME="$OPTARG"
       ;;
     "o")
       DOCKEROPS="$OPTARG"
@@ -172,11 +167,6 @@ fi;
 
 # Oracle Database Image Name
 IMAGE_NAME="oracle/database:$VERSION-$EDITION"
-
-DOCKER_BUILD_ARGS=""
-if [[ "$GOLDIMAGE_NAME" ]]; then
-  DOCKER_BUILD_ARGS="--build-arg GOLDIMAGE_NAME=${GOLDIMAGE_NAME}"
-fi
 
 # Go into version folder
 cd "$VERSION" || {
@@ -224,7 +214,7 @@ echo "Building image '$IMAGE_NAME' ..."
 # BUILD THE IMAGE (replace all environment variables)
 BUILD_START=$(date '+%s')
 docker build --force-rm=true --no-cache=true \
-       $DOCKEROPS $PROXY_SETTINGS $DOCKER_BUILD_ARGS --build-arg DB_EDITION=$EDITION \
+       $DOCKEROPS $PROXY_SETTINGS --build-arg DB_EDITION=$EDITION \
        -t $IMAGE_NAME -f $DOCKERFILE . || {
   echo ""
   echo "ERROR: Oracle Database Docker Image was NOT successfully created."

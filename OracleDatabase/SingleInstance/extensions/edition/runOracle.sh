@@ -156,6 +156,9 @@ export ORACLE_PDB=${ORACLE_PDB^^}
 # Default for ORACLE CHARACTERSET
 export ORACLE_CHARACTERSET=${ORACLE_CHARACTERSET:-AL32UTF8}
 
+# Default for ORACLE_EDITION
+export ORACLE_EDITION=${ORACLE_EDITION:-enterprise}
+
 # Check whether database already exists
 if [ -d $ORACLE_BASE/oradata/$ORACLE_SID ]; then
    symLinkFiles;
@@ -175,7 +178,19 @@ else
   rm -f $ORACLE_HOME/network/admin/sqlnet.ora
   rm -f $ORACLE_HOME/network/admin/listener.ora
   rm -f $ORACLE_HOME/network/admin/tnsnames.ora
-   
+
+  # Copying the correct oracle binary according to edition passed
+  if [ "${ORACLE_EDITION,,}" == "enterprise" ]; then
+      cp $ORACLE_HOME/bin/oracle_ent $ORACLE_HOME/bin/oracle
+  fi
+
+  if [ "${ORACLE_EDITION,,}" == "standard" ]; then
+      cp $ORACLE_HOME/bin/oracle_std $ORACLE_HOME/bin/oracle
+  fi
+
+  # Deleting rest of the oracle binaries
+  rm $ORACLE_HOME/bin/oracle_*
+
   # Create database
   $ORACLE_BASE/$CREATE_DB_FILE $ORACLE_SID $ORACLE_PDB $ORACLE_PWD;
    

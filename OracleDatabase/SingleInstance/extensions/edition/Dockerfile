@@ -34,5 +34,6 @@ RUN mv $ORACLE_HOME/bin/oracle $ORACLE_HOME/bin/oracle_bkp && \
     mv $ORACLE_HOME/bin/oracle $ORACLE_HOME/bin/oracle_std && \
     mv $ORACLE_HOME/bin/oracle_bkp $ORACLE_HOME/bin/oracle
 
-
+# Copy updated runOracle.sh ($RUN_FILE) supporting edition switching
+COPY  --chown=oracle:dba $RUN_FILE $ORACLE_BASE/
 

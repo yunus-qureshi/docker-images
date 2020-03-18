@@ -8,13 +8,13 @@
 #
 # REQUIREMETNS FOR THIS IMAGE
 # ----------------------------------
-# The oracle/datab
+# Any release of oracle/database base docker image
 #
 # HOW TO BUILD THIS IMAGE
 # -----------------------
-# Put the downloaded patch(es) into the sub folders patch/0NN
+#
 # Run:
-#      $ docker build -t oracle/database:fastfailover .
+#      $ docker build -t oracle/database:ff . --build-arg TAG=19.3.0-ee
 #
 # Pull base image
 # ---------------

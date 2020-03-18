@@ -24,7 +24,7 @@ sqlplus / as sysdba << EOF
    exit;
 EOF
 
-$ORACLE_BASE/scripts/setup/refresh_locks.sh
+$ORACLE_BASE/$LOCKING_SCRIPT --acquire --file $EXIST_LOCK_FILE --block
 
 # Start Listener
 lsnrctl start
@@ -33,6 +33,9 @@ lsnrctl start
 sqlplus / as sysdba << EOF
    alter database mount;
    alter database open;
+   alter pluggable database all open;
    alter system register;
    exit;
 EOF
+
+$ORACLE_BASE/$LOCKING_SCRIPT --release --file $CREATE_LOCK_FILE

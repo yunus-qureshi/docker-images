@@ -37,7 +37,7 @@ def acquire_lock(lock_file, sock_file, block):
     while True:
         try:
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            print('Lock acquired')
+            print('Lock acquired on %s' % lock_file)
             break
         except IOError as e:
             if not block:
@@ -51,7 +51,7 @@ def acquire_lock(lock_file, sock_file, block):
         # Spawn a child process to hold on to the lock
         if os.path.exists(sock_file):
             os.remove(sock_file)
-        print('Waiting on %s' % sock_file)
+        print('Holding on to lock %s' % sock_file)
         listener = Listener(address=sock_file, authkey=AUTHKEY)
 
         def release(sig=None, frame=None):
@@ -63,7 +63,7 @@ def acquire_lock(lock_file, sock_file, block):
             """
             lock_handle.close()
             listener.close()
-            print('Lock released')
+            print('Lock released on %s' % lock_file)
 
         signal.signal(signal.SIGTERM, release)
         signal.signal(signal.SIGINT, release)

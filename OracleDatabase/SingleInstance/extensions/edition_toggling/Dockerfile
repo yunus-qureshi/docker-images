@@ -14,11 +14,10 @@
 # -----------------------
 #
 # Run:
-#      $ docker build -t oracle/database
+#      $ docker build -t oracle/database . --build-arg TAG=20.3.0-ee
 #
 # Pull base image
 # ---------------
-
 ARG TAG=latest
 FROM oracle/database:${TAG}
 
@@ -41,6 +40,5 @@ COPY  --chown=oracle:dba $TOGGLE_EDITION_FILE $ORACLE_BASE/
 RUN chmod +x $ORACLE_BASE/$TOGGLE_EDITION_FILE
 
 # Define default command to start Oracle Database.
-CMD exec $ORACLE_BASE/$TOGGLE_EDITION_FILE && \
-    exec $ORACLE_BASE/$RUN_FILE
+CMD $ORACLE_BASE/$TOGGLE_EDITION_FILE && $ORACLE_BASE/$RUN_FILE
 

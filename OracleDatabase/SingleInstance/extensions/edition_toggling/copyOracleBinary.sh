@@ -23,3 +23,5 @@ fi
 
 # Deleting rest of the oracle binaries
 rm $ORACLE_HOME/bin/oracle_*
+
+echo "Copied the oracle binary for edition: ${ORACLE_EDITION}"

@@ -23,6 +23,7 @@ FROM oracle/database
 
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
+ENV TOGGLE_EDITION_FILE="copyOracleBinary.sh"
 
 #  Relinking enterprise and standard oracle binaries
 USER oracle
@@ -34,7 +35,11 @@ RUN mv $ORACLE_HOME/bin/oracle $ORACLE_HOME/bin/oracle_bkp && \
     mv $ORACLE_HOME/bin/oracle $ORACLE_HOME/bin/oracle_std && \
     mv $ORACLE_HOME/bin/oracle_bkp $ORACLE_HOME/bin/oracle
 
-# Copy updated runOracle.sh ($RUN_FILE) supporting edition switching
-COPY  --chown=oracle:dba $RUN_FILE $ORACLE_BASE/
-RUN chmod +x $ORACLE_BASE/$RUN_FILE
+# Copy copyOracleBinary.sh ($TOGGLE_EDITION_FILE) supporting edition switching
+COPY  --chown=oracle:dba $TOGGLE_EDITION_FILE $ORACLE_BASE/
+RUN chmod +x $ORACLE_BASE/$TOGGLE_EDITION_FILE
+
+# Define default command to start Oracle Database.
+CMD exec $ORACLE_BASE/$TOGGLE_EDITION_FILE && \
+    exec $ORACLE_BASE/$RUN_FILE
 

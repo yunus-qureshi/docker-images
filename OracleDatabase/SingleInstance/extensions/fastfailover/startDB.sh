@@ -18,13 +18,15 @@ if [ "$ORACLE_HOME" == "" ]; then
   exit 1;
 fi;
 
+ORACLE_SID="`grep $ORACLE_HOME /etc/oratab | cut -d: -f1`"
+
 # Start database in nomount mode
 sqlplus / as sysdba << EOF
    STARTUP nomount;
    exit;
 EOF
 
-$ORACLE_BASE/$LOCKING_SCRIPT --acquire --file $EXIST_LOCK_FILE --block
+"$ORACLE_BASE/$LOCKING_SCRIPT" --acquire --file "$ORACLE_BASE/oradata/${ORACLE_SID}.exist_lck" --block
 
 # Start Listener
 lsnrctl start
@@ -38,4 +40,4 @@ sqlplus / as sysdba << EOF
    exit;
 EOF
 
-$ORACLE_BASE/$LOCKING_SCRIPT --release --file $CREATE_LOCK_FILE
+"$ORACLE_BASE/$LOCKING_SCRIPT" --release --file "$ORACLE_BASE/oradata/${ORACLE_SID}.create_lck"

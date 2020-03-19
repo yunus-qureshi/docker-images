@@ -19,7 +19,8 @@
 # Pull base image
 # ---------------
 
-FROM oracle/database
+ARG TAG=latest
+FROM oracle/database:${TAG}
 
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------

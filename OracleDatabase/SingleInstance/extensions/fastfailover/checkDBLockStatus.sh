@@ -11,7 +11,7 @@
 
 ORACLE_SID="`grep $ORACLE_HOME /etc/oratab | cut -d: -f1`"
 
-$ORACLE_BASE/$CHECK_DB_FILE
+"$ORACLE_BASE/$CHECK_DB_FILE"
 if [ $? -ne 0 ]; then
   "$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/${ORACLE_SID}.exist_lck"
   if [ $? -eq 0 ]; then
@@ -19,5 +19,7 @@ if [ $? -ne 0 ]; then
     if [ $? -ne 0 ]; then
       "$ORACLE_BASE/$LOCKING_SCRIPT" --release --file "$ORACLE_BASE/oradata/${ORACLE_SID}.exist_lck"
     fi
+  else
+    exit 1
   fi
 fi

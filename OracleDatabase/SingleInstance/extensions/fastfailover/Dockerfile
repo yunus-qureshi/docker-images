@@ -25,6 +25,7 @@ FROM oracle/database:${TAG}
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
 ENV EXTENSION_NAME=fastfailover \
+    ORACLE_SID=ORCLCDB \
     LOCKING_SCRIPT=file_lock.py \
     SWAP_LOCK_FILE=swapLocks.sh \
     CHECK_DB_LOCK_FILE=checkDBLockStatus.sh

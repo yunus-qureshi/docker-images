@@ -26,7 +26,7 @@ FROM oracle/database:${TAG}
 # -------------------------------------------------------------
 ENV EXTENSION_NAME=fastfailover \
     ORACLE_SID=ORCLCDB \
-    LOCKING_SCRIPT=file_lock.py \
+    LOCKING_SCRIPT=lock.py \
     SWAP_LOCK_FILE=swapLocks.sh \
     CHECK_DB_LOCK_FILE=checkDBLockStatus.sh
 

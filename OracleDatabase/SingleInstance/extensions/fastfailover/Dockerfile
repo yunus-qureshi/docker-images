@@ -8,13 +8,13 @@
 #
 # REQUIREMETNS FOR THIS IMAGE
 # ----------------------------------
-# Any release of oracle/database base docker image prebuilt
+# Any release of prebuilt oracle/database base docker image
 #
 # HOW TO BUILD THIS IMAGE
 # -----------------------
 #
 # Run:
-#      $ docker build -t oracle/database:ff . --build-arg BASE_IMAGE=18.3.0-ee
+#      $ docker build -t <extended_image_name> . --build-arg BASE_IMAGE=18.3.0-ee
 #
 
 ARG BASE_IMAGE=oracle/database:19.3.0-ee

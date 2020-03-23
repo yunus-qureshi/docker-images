@@ -18,4 +18,4 @@
 export ORACLE_SID=${ORACLE_SID^^}
 
 "$ORACLE_BASE/$LOCKING_SCRIPT" --acquire --file "$ORACLE_BASE/oradata/${ORACLE_SID}.create_lck" --block
-. "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME"
+

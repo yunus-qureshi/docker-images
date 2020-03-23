@@ -20,10 +20,12 @@
 ARG BASE_IMAGE=oracle/database:19.3.0-ee
 FROM ${BASE_IMAGE}
 
+# Extn name
+ARG EXTENSION_NAME=fastfailover
+
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
-ENV EXTENSION_NAME=fastfailover \
-    ORACLE_SID=ORCLCDB \
+ENV ORACLE_SID=ORCLCDB \
     LOCKING_SCRIPT=lock.py \
     SWAP_LOCK_FILE=swapLocks.sh \
     CHECK_DB_LOCK_FILE=checkDBLockStatus.sh
@@ -35,10 +37,12 @@ RUN cd $ORACLE_HOME/rdbms/lib && make -f ins_rdbms.mk dnfs_on
 HEALTHCHECK --interval=1m --start-period=15m \
    CMD "$ORACLE_BASE/$CHECK_DB_LOCK_FILE" >/dev/null || exit 1
 
-# backup origin run file
+# backup original runOracle
 RUN mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME"
 
 # Copy updated scripts to support fastfailover
 COPY  --chown=oracle:dba $RUN_FILE $START_FILE $LOCKING_SCRIPT $CHECK_DB_LOCK_FILE $ORACLE_BASE/
 COPY  --chown=oracle:dba $SWAP_LOCK_FILE $ORACLE_BASE/scripts/setup/
 
+# Append a call to main runOracle
+RUN echo ". $ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME" >> "$ORACLE_BASE/$RUN_FILE"

@@ -41,4 +41,3 @@ RUN mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME"
 
 # Copy updated runOracle.sh and copyOracleBinary.sh supporting edition switching
 COPY  --chown=oracle:dba $RUN_FILE $TOGGLE_EDITION_FILE $ORACLE_BASE/
-RUN chmod +x $ORACLE_BASE/$TOGGLE_EDITION_FILE

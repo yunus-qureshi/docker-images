@@ -8,19 +8,17 @@
 #
 # REQUIREMETNS FOR THIS IMAGE
 # ----------------------------------
-# Any release of oracle/database base docker image
+# Any release of oracle/database base docker image prebuilt
 #
 # HOW TO BUILD THIS IMAGE
 # -----------------------
 #
 # Run:
-#      $ docker build -t oracle/database:ff . --build-arg TAG=19.3.0-ee
+#      $ docker build -t oracle/database:ff . --build-arg BASE_IMAGE=18.3.0-ee
 #
-# Pull base image
-# ---------------
 
-ARG TAG=latest
-FROM oracle/database:${TAG}
+ARG BASE_IMAGE=oracle/database:19.3.0-ee
+FROM ${BASE_IMAGE}
 
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------

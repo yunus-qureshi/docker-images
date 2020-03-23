@@ -14,12 +14,12 @@
 # -----------------------
 #
 # Run:
-#      $ docker build -t oracle/database . --build-arg TAG=20.3.0-ee
+#      $ docker build -t <extended_image_name> . --build-arg BASE_IMAGE=oracle/database:18.3.0-ee
 #
 # Pull base image
 # ---------------
-ARG TAG=latest
-FROM oracle/database:${TAG}
+ARG BASE_IMAGE=oracle/database:19.3.0-ee
+FROM ${BASE_IMAGE}
 
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
@@ -27,7 +27,6 @@ ENV EXTENSION_NAME="edition_toggling" \
     TOGGLE_EDITION_FILE="copyOracleBinary.sh"
 
 #  Relinking enterprise and standard oracle binaries
-USER oracle
 RUN mv $ORACLE_HOME/bin/oracle $ORACLE_HOME/bin/oracle_bkp && \
     cd $ORACLE_HOME/rdbms/lib && \
     make -f ins_rdbms.mk edition_enterprise ioracle && \

@@ -21,10 +21,12 @@
 ARG BASE_IMAGE=oracle/database:19.3.0-ee
 FROM ${BASE_IMAGE}
 
+# Extn name
+ARG EXTENSION_NAME="edition_toggling"
+
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
-ENV EXTENSION_NAME="edition_toggling" \
-    TOGGLE_EDITION_FILE="copyOracleBinary.sh"
+ENV TOGGLE_EDITION_FILE="copyOracleBinary.sh"
 
 #  Relinking enterprise and standard oracle binaries
 RUN mv $ORACLE_HOME/bin/oracle $ORACLE_HOME/bin/oracle_bkp && \
@@ -35,8 +37,11 @@ RUN mv $ORACLE_HOME/bin/oracle $ORACLE_HOME/bin/oracle_bkp && \
     mv $ORACLE_HOME/bin/oracle $ORACLE_HOME/bin/oracle_std && \
     mv $ORACLE_HOME/bin/oracle_bkp $ORACLE_HOME/bin/oracle
 
-# backup origin run file
+# backup origin runOracle
 RUN mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME"
 
 # Copy updated runOracle.sh and copyOracleBinary.sh supporting edition switching
 COPY  --chown=oracle:dba $RUN_FILE $TOGGLE_EDITION_FILE $ORACLE_BASE/
+
+# Append a call to main runOracle
+RUN echo ". $ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME" >> "$ORACLE_BASE/$RUN_FILE"

@@ -13,15 +13,23 @@
 # Default for ORACLE_EDITION
 export ORACLE_EDITION=${ORACLE_EDITION:-enterprise}
 
+BINARY_NAME=""
+
 if [ "${ORACLE_EDITION,,}" == "enterprise" ]; then
-  cp $ORACLE_HOME/bin/oracle_ent $ORACLE_HOME/bin/oracle
-fi
+  BINARY_NAME="oracle_ent"
+fi;
 
 if [ "${ORACLE_EDITION,,}" == "standard" ]; then
-  cp $ORACLE_HOME/bin/oracle_std $ORACLE_HOME/bin/oracle
-fi
+  BINARY_NAME="oracle_std"
+fi;
 
-# Deleting rest of the oracle binaries
-rm $ORACLE_HOME/bin/oracle_*
-
-echo "Copied the oracle binary for edition: ${ORACLE_EDITION}"
+# Checking for existence of oracle binaries as during restart of docker
+# container the ent/std binaries won't be present inside the container
+if [ -e $ORACLE_HOME/bin/$BINARY_NAME ]; then
+  cp $ORACLE_HOME/bin/$BINARY_NAME $ORACLE_HOME/bin/oracle
+  echo "Copied the oracle binary for edition: ${ORACLE_EDITION}"
+  # Deleting rest of the oracle binaries
+  rm $ORACLE_HOME/bin/oracle_*
+else
+  echo "Oracle binary is already linked for edition ${ORACLE_EDITION}"
+fi;

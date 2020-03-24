@@ -11,18 +11,18 @@
 
 ORACLE_SID="`grep $ORACLE_HOME /etc/oratab | cut -d: -f1`"
 
-"$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/${ORACLE_SID}.create_lck"
-if [ $? -eq 0 ]; then
+if "$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/${ORACLE_SID}.create_lck"; then
   exit 1  # create lock held, DB is still initializing
-else
-  # Ok create lock not held, now check status
-  "$ORACLE_BASE/$CHECK_DB_FILE"
-  if [ $? -ne 0 ]; then
-    # DB status is not good
-    "$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/${ORACLE_SID}.exist_lck"
-    if [ $? -eq 0 ]; then
-      # exist lock is held release it
-      "$ORACLE_BASE/$LOCKING_SCRIPT" --release --file "$ORACLE_BASE/oradata/${ORACLE_SID}.exist_lck"
-    fi
+elif ! "$ORACLE_BASE/$CHECK_DB_FILE"; then
+  # DB status is not good, check if exist lock is held
+  if "$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/${ORACLE_SID}.exist_lck"; then
+    # exist lock is held release it
+    "$ORACLE_BASE/$LOCKING_SCRIPT" --release --file "$ORACLE_BASE/oradata/${ORACLE_SID}.exist_lck"
+  elif pgrep -f "$LOCKING_SCRIPT.*--acquire.*create_lck"; then
+    # blocked on create lock
+    exit 1
+  else
+    # Kill the process that keeps the container alive
+    pkill -9 -f "tail.*alert"
   fi
 fi

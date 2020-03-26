@@ -4,7 +4,7 @@
 #
 # ORACLE DOCKERFILES PROJECT
 # --------------------------
-# This is the Dockerfile for Oracle Database with Edition Switch support
+# This is the Dockerfile for Oracle Database with patching support
 #
 # REQUIREMETNS FOR THIS IMAGE
 # ----------------------------------

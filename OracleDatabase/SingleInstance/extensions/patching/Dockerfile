@@ -24,7 +24,7 @@ FROM ${BASE_IMAGE} as patching
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
 ENV HOST_PATCH_DIR="patches_to_apply" \
-    PATCH_DIR=/opt/install \
+    PATCH_DIR=/opt/install/patches \
     PATCH_DB_BINARIES_FILE="patchDBBinaries.sh"
 
 # Copy DB patches
@@ -34,7 +34,7 @@ COPY --chown=oracle:dba $HOST_PATCH_DIR/* $PATCH_DB_BINARIES_FILE $PATCH_DIR/
 RUN chmod ug+x $PATCH_DIR/*.sh && \
     sync && \
     $PATCH_DIR/$PATCH_DB_BINARIES_FILE && \
-    rm -rf $ORACLE_HOME/.patch_storage
+    rm -rf $PATCH_DIR $ORACLE_HOME/.patch_storage
 
 
 ## New stage for minimal layer size
@@ -43,13 +43,15 @@ FROM ${BASE_IMAGE}
 # Extn name
 ARG EXTENSION_NAME="patching"
 
-USER oracle
-RUN rm -rf $ORACLE_BASE
-
+# Copying patched oracle_base from previous layer
 COPY --chown=oracle:dba --from=patching $ORACLE_BASE $ORACLE_BASE
 
 # backup origin runOracle
 RUN mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME"
+
+# Copy updated runOracle.sh
+COPY  --chown=oracle:dba $RUN_FILE $ORACLE_BASE/
+RUN chmod ug+x $ORACLE_BASE/*.sh && sync
 
 # Append a call to main runOracle
 RUN echo ". $ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME" >> "$ORACLE_BASE/$RUN_FILE"

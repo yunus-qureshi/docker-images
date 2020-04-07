@@ -32,12 +32,12 @@ def acquire_lock(lock_file, sock_file, block):
     :param block:
     :return:
     """
-    print('Acquiring lock on %s' % lock_file)
+    print('[%s]: Acquiring lock on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
     lock_handle = open(lock_file, 'w')
     while True:
         try:
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            print('Lock acquired on %s' % lock_file)
+            print('[%s]: Lock acquired on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
             break
         except IOError as e:
             if not block:
@@ -51,7 +51,7 @@ def acquire_lock(lock_file, sock_file, block):
         # Spawn a child process to hold on to the lock
         if os.path.exists(sock_file):
             os.remove(sock_file)
-        print('Holding on to lock %s' % sock_file)
+        print('[%s]: Holding on to the lock using %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), sock_file))
         listener = Listener(address=sock_file, authkey=AUTHKEY)
 
         def release(sig=None, frame=None):
@@ -63,7 +63,7 @@ def acquire_lock(lock_file, sock_file, block):
             """
             lock_handle.close()
             listener.close()
-            print('Lock released on %s' % lock_file)
+            print('[%s]: Lock released on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
 
         signal.signal(signal.SIGTERM, release)
         signal.signal(signal.SIGINT, release)
@@ -82,11 +82,11 @@ def check_lock(sock_file):
     """
     if not os.path.exists(sock_file):
         return 1
-    print('Connecting to the lock process %s' % sock_file)
+    print('[%s]: Connecting to the lock process %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), sock_file))
     cl = Client(address=sock_file, authkey=AUTHKEY)
     cl.send(False)
     cl.close()
-    print('Lock held')
+    print('[%s]: Lock held' % (time.strftime('%Y:%m:%d %H:%M:%S')))
     return 0
 
 
@@ -98,7 +98,7 @@ def release_lock(sock_file):
     """
     if not os.path.exists(sock_file):
         return 1
-    print('Connecting to the lock process %s' % sock_file)
+    print('[%s]: Connecting to the lock process %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), sock_file))
     cl = Client(address=sock_file, authkey=AUTHKEY)
     cl.send(True)
     cl.close()

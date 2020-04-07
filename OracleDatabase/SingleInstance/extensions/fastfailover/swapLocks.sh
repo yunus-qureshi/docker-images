@@ -11,5 +11,9 @@
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 #
 
-"$ORACLE_BASE/$LOCKING_SCRIPT" --acquire --file "$ORACLE_BASE/oradata/${ORACLE_SID}.exist_lck" --block
-"$ORACLE_BASE/$LOCKING_SCRIPT" --release --file "$ORACLE_BASE/oradata/${ORACLE_SID}.create_lck"
+"$ORACLE_BASE/$LOCKING_SCRIPT" --release --file "$ORACLE_BASE/oradata/.${ORACLE_SID}.create_lck"
+if ! pgrep -f "$LOCKING_SCRIPT.*--acquire.*exist_lck"; then
+  # Acquire exist lock if not already acquired or trying
+  "$ORACLE_BASE/$LOCKING_SCRIPT" --acquire --file "$ORACLE_BASE/oradata/.${ORACLE_SID}.exist_lck" --block
+fi
+

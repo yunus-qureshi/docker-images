@@ -102,7 +102,6 @@ def release_lock(sock_file):
     cl = Client(address=sock_file, authkey=AUTHKEY)
     cl.send(True)
     cl.close()
-    print('Connected and closed')
     return 1
 
 

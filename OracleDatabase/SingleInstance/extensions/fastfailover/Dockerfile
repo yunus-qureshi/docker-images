@@ -26,6 +26,8 @@ ARG EXTENSION_NAME=fastfailover
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
 ENV ORACLE_SID=ORCLCDB \
+    STARTUP_FILE=startUp.sh \
+    SHUT_DB_FILE=shutDown.sh \
     LOCKING_SCRIPT=lock.py \
     SWAP_LOCK_FILE=swapLocks.sh \
     CHECK_DB_LOCK_FILE=checkDBLockStatus.sh
@@ -34,14 +36,16 @@ ENV ORACLE_SID=ORCLCDB \
 RUN cd $ORACLE_HOME/rdbms/lib && make -f ins_rdbms.mk dnfs_on
 
 # Updated Health Check
-HEALTHCHECK --interval=1m --start-period=15m \
+HEALTHCHECK --interval=1m --start-period=30m \
    CMD "$ORACLE_BASE/$CHECK_DB_LOCK_FILE" >/dev/null || exit 1
 
 # backup original runOracle
-RUN mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME"
+RUN mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME" && \
+    ln -s "$ORACLE_BASE/$STARTUP_FILE" /home/oracle/ && \
+    ln -s "$ORACLE_BASE/$SHUT_DB_FILE" /home/oracle/
 
 # Copy updated scripts to support fastfailover
-COPY  --chown=oracle:dba $RUN_FILE $START_FILE $LOCKING_SCRIPT $CHECK_DB_LOCK_FILE $ORACLE_BASE/
+COPY  --chown=oracle:dba $RUN_FILE $START_FILE $STARTUP_FILE $SHUT_DB_FILE $LOCKING_SCRIPT $CHECK_DB_LOCK_FILE $ORACLE_BASE/
 COPY  --chown=oracle:dba $SWAP_LOCK_FILE $ORACLE_BASE/scripts/setup/
 
 # Append a call to main runOracle

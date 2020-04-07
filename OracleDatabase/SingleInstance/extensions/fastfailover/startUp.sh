@@ -5,7 +5,7 @@
 #
 # Since: Mar, 2020
 # Author: mohammed.qureshi@oracle.com
-# Description: Starts the Listener and Oracle Database.
+# Description: Starts the Oracle Database.
 #              The ORACLE_HOME and the PATH has to be set.
 # 
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
@@ -20,30 +20,19 @@ fi;
 
 ORACLE_SID="`grep $ORACLE_HOME /etc/oratab | cut -d: -f1`"
 
-# Start database in nomount mode, shutdown first to abort any zombie procs on restart
+# Start database in nomount mode firt
 sqlplus / as sysdba << EOF
-   shutdown abort;
    startup nomount;
    exit;
 EOF
 
-# startup can get into a wait mode here
-$ORACLE_BASE/scripts/setup/$SWAP_LOCK_FILE
-
-# Start Listener
-lsnrctl start
-
-condn_sql=""
-if ! pgrep -f pmon; then
-  # if Oracle processes die for some reason by the time lock is acquired
-  condn_sql="shutdown abort;
-  startup nomount;
-  "
+# First check if exist lock is held
+if ! "$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/.${ORACLE_SID}.exist_lck" &> /dev/null; then
+  exit 1 # exist lock not held, don't mount datafiles
 fi
 
 # Start database
 sqlplus / as sysdba << EOF
-   $condn_sql
    alter database mount;
    alter database open;
    alter pluggable database all open;

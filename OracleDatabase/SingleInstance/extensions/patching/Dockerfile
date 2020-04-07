@@ -23,7 +23,7 @@ FROM ${BASE_IMAGE} as patching
 
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
-ENV HOST_PATCH_DIR="patches_to_apply" \
+ENV HOST_PATCH_DIR="patches" \
     PATCH_DIR=/opt/install/patches \
     PATCH_DB_BINARIES_FILE="patchDBBinaries.sh"
 
@@ -39,12 +39,22 @@ RUN chmod ug+x $PATCH_DIR/*.sh && \
 
 ## New stage for minimal layer size
 FROM ${BASE_IMAGE}
+ENV RUN_DATAPATCH_FILE="runDatapatch.sh" \
+    RUN_LSPATCHES_FILE="savePatchSummary.sh"
 
 # Extn name
 ARG EXTENSION_NAME="patching"
 
 # Copying patched oracle_base from previous layer
 COPY --chown=oracle:dba --from=patching $ORACLE_BASE $ORACLE_BASE
+
+# Copy script to run datapatch
+COPY --chown=oracle:dba $RUN_DATAPATCH_FILE $ORACLE_BASE/scripts/startup
+RUN chmod ug+x $ORACLE_BASE/scripts/startup/*.sh && sync
+
+# Copy script to run lspatches
+COPY --chown=oracle:dba $RUN_LSPATCHES_FILE $ORACLE_BASE/scripts/setup
+RUN chmod ug+x $ORACLE_BASE/scripts/setup/*.sh && sync
 
 # backup origin runOracle
 RUN mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME"

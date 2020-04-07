@@ -5,8 +5,7 @@
 #
 # Since: March, 2020
 # Author: rishabh.y.gupta@oracle.com
-# Description: Runs datapatch while migrating to a container with higher RU while using existing datafiles
+# Description: runOracle.sh for the patching extension
 # 
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 #
-

@@ -39,8 +39,8 @@ RUN chmod ug+x $PATCH_DIR/*.sh && \
 
 ## New stage for minimal layer size
 FROM ${BASE_IMAGE}
-ENV RUN_DATAPATCH_FILE="runDatapatch.sh" \
-    RUN_LSPATCHES_FILE="savePatchSummary.sh"
+ENV DATAPATCH_FILE="runDatapatch.sh" \
+    LSPATCHES_FILE="savePatchSummary.sh"
 
 # Extn name
 ARG EXTENSION_NAME="patching"
@@ -49,11 +49,11 @@ ARG EXTENSION_NAME="patching"
 COPY --chown=oracle:dba --from=patching $ORACLE_BASE $ORACLE_BASE
 
 # Copy script to run datapatch
-COPY --chown=oracle:dba $RUN_DATAPATCH_FILE $ORACLE_BASE/scripts/startup
+COPY --chown=oracle:dba $DATAPATCH_FILE $ORACLE_BASE/scripts/startup
 RUN chmod ug+x $ORACLE_BASE/scripts/startup/*.sh && sync
 
 # Copy script to run lspatches
-COPY --chown=oracle:dba $RUN_LSPATCHES_FILE $ORACLE_BASE/scripts/setup
+COPY --chown=oracle:dba $LSPATCHES_FILE $ORACLE_BASE/scripts/setup
 RUN chmod ug+x $ORACLE_BASE/scripts/setup/*.sh && sync
 
 # backup origin runOracle

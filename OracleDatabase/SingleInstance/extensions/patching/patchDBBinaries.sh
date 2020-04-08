@@ -12,8 +12,7 @@
 
 PATCHES_LIST=()
 
-ls $PATCH_DIR/*.zip;
-if [ $? -eq 0 ]; then
+if ls $PATCH_DIR/*.zip 2> /dev/null; then
     for patch_zip in $PATCH_DIR/*.zip; do
         patch_no=$(echo ${patch_zip##*/} | cut -d_ -f1 | cut -dp -f2)
         if [ $patch_no == "6880880" ]; then

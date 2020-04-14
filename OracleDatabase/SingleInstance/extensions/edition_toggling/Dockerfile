@@ -36,4 +36,4 @@ COPY  --chown=oracle:dba $RUN_FILE $RELINK_BINARY_FILE $ORACLE_BASE/
 RUN chmod ug+x $ORACLE_BASE/*.sh && sync
 
 # Append a call to main runOracle
-RUN echo ". $ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME" >> "$ORACLE_BASE/$RUN_FILE"
+RUN echo -e "\n. $ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME" >> "$ORACLE_BASE/$RUN_FILE"

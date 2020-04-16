@@ -19,7 +19,7 @@ Shutdowns the DB in the specified mode. Mode can be either of normal, immediate,
 
 LICENSE UPL 1.0
 
-Copyright (c) 2014-2020 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2020 Oracle and/or its affiliates. All rights reserved.
 
 EOF
 exit 1
@@ -32,10 +32,12 @@ if [ "$ORACLE_HOME" == "" ]; then
   exit 1;
 fi;
 
-option=${1:=immediate}
+export ORACLE_SID=$(grep "$ORACLE_HOME" /etc/oratab | cut -d: -f1)
+option="$1"
+
 echo "Performing shutdown $option"
 # Disable health check
-touch "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk"
+touch "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk" && sync
 # Now shutdown database
 sqlplus / as sysdba << EOF
    shutdown $option;

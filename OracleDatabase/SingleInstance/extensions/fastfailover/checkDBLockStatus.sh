@@ -1,7 +1,7 @@
 #!/bin/bash
 # LICENSE UPL 1.0
 #
-# Copyright (c) 1982-2020 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2020 Oracle and/or its affiliates. All rights reserved.
 #
 # Since: Mar, 2020
 # Author: mohammed.qureshi@oracle.com
@@ -9,7 +9,7 @@
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 # 
 
-ORACLE_SID="`grep $ORACLE_HOME /etc/oratab | cut -d: -f1`"
+export ORACLE_SID=${ORACLE_SID^^}
 
 if "$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/.${ORACLE_SID}.create_lck"; then
   exit 1  # create lock held, DB is still initializing

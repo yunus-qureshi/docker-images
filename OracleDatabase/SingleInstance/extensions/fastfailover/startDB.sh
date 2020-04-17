@@ -18,7 +18,7 @@ if [ "$ORACLE_HOME" == "" ]; then
   exit 1;
 fi;
 
-ORACLE_SID="`grep $ORACLE_HOME /etc/oratab | cut -d: -f1`"
+export ORACLE_SID=$(grep "$ORACLE_HOME" /etc/oratab | cut -d: -f1)
 
 # Start database in nomount mode, shutdown first to abort any zombie procs on restart
 sqlplus / as sysdba << EOF

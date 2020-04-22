@@ -41,8 +41,8 @@ HEALTHCHECK --interval=1m --start-period=30m \
 
 # backup original runOracle
 RUN mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME" && \
-    ln -s "$ORACLE_BASE/$STARTUP_FILE" /home/oracle/ && \
-    ln -s "$ORACLE_BASE/$SHUT_DB_FILE" /home/oracle/
+    ln -sf "$ORACLE_BASE/$STARTUP_FILE" /home/oracle/ && \
+    ln -sf "$ORACLE_BASE/$SHUT_DB_FILE" /home/oracle/
 
 # Copy updated scripts to support fastfailover
 COPY  --chown=oracle:dba $RUN_FILE $START_FILE $STARTUP_FILE $SHUT_DB_FILE $LOCKING_SCRIPT $CHECK_DB_LOCK_FILE $ORACLE_BASE/

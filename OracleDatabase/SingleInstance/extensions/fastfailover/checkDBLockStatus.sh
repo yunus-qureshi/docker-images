@@ -16,8 +16,8 @@ if "$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/.${ORACLE
 elif ! "$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/.${ORACLE_SID}.exist_lck"; then
   exit 1 # exist lock not held, DB is still initializing
 elif "$ORACLE_BASE/$CHECK_DB_FILE"; then
-  # DB health is good, delete no check file
-  rm -f "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk"
+  # DB health is good
+  exit 0
 elif test -f "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk"; then
   exit 1 # Skip health check
 else

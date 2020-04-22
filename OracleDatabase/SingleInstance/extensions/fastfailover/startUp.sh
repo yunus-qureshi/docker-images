@@ -40,3 +40,5 @@ sqlplus / as sysdba << EOF
    exit;
 EOF
 
+# Now remove the chk file
+rm -f "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk"

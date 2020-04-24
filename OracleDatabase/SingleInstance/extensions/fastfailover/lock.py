@@ -61,6 +61,9 @@ def acquire_lock(lock_file, sock_file, block):
             :param frame:
             :return:
             """
+            # Hold on to the lock for other container
+            # processes to terminate first
+            time.sleep(30)
             lock_handle.close()
             listener.close()
             print('[%s]: Lock released on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))

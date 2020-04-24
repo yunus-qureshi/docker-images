@@ -51,3 +51,6 @@ sqlplus / as sysdba << EOF
    exit;
 EOF
 
+# Also remove any stale nochk file
+rm -f "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk"
+

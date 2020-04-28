@@ -62,7 +62,7 @@ def acquire_lock(lock_file, sock_file, block):
             :return:
             """
             # Hold on to the lock for other container
-            # processes to terminate first
+            # processes to terminate first. Allow 30 secs timeout
             time.sleep(30)
             lock_handle.close()
             listener.close()

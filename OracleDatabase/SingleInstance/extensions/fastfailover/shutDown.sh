@@ -35,9 +35,12 @@ fi;
 export ORACLE_SID=$(grep "$ORACLE_HOME" /etc/oratab | cut -d: -f1)
 option="$1"
 
+if "$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/.${ORACLE_SID}.exist_lck" &> /dev/null; then
+  # Exist lock held, disable health check
+  touch "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk" && sync
+fi
+
 echo "Performing shutdown $option"
-# Disable health check
-touch "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk" && sync
 # Now shutdown database
 sqlplus / as sysdba << EOF
    shutdown $option;

@@ -20,15 +20,12 @@ elif "$ORACLE_BASE/$CHECK_DB_FILE"; then
   exit 0
 elif test -f "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk"; then
   exit 1 # Skip health check
+elif pgrep -f pmon; then
+  # DB procs detected
+  exit 1
 else
-  # DB status is not good, check if starting
-  if pgrep -f "$START_FILE"; then
-    # still starting
-    exit 1
-  else
-    # if not blocked on create or start, release exist lock
-    "$ORACLE_BASE/$LOCKING_SCRIPT" --release --file "$ORACLE_BASE/oradata/.${ORACLE_SID}.exist_lck"
-    # Kill the process that keeps the container alive
-    pkill -9 -f "tail.*alert"
-  fi
+  # No DB procs detected
+  "$ORACLE_BASE/$LOCKING_SCRIPT" --release --file "$ORACLE_BASE/oradata/.${ORACLE_SID}.exist_lck"
+  # Kill the process that keeps the container alive
+  pkill -9 -f "tail.*alert"
 fi

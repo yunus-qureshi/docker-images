@@ -30,8 +30,8 @@ EOF
   if pgrep -f pmon; then
     break
   fi
-  # Sometimes DB locks are not released immediately
-  echo 'Waiting for $i sec(s) before restarting Oracle processes'
+  # Sometimes DB locks of dead container are not released immediately
+  echo "Waiting for $i sec(s) before restarting Oracle processes"
   sleep $i
 done
 
@@ -49,8 +49,12 @@ if ! pgrep -f pmon; then
   "
 fi
 
-# Start database
-sqlplus / as sysdba << EOF
+# Disable exit on failed health check
+touch "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk" && sync
+
+for i in {1..10}; do
+  # Start database
+  sqlplus / as sysdba << EOF
    $condn_sql
    alter database mount;
    alter database open;
@@ -58,7 +62,16 @@ sqlplus / as sysdba << EOF
    alter system register;
    exit;
 EOF
+  if "$ORACLE_BASE/$CHECK_DB_FILE"; then
+    # DB health is good
+    echo "DB is in good health on startup"
+    break
+  fi
+  # Sometimes DB locks of a dead container are not released immediately
+  echo "Waiting for $i sec(s) before restarting Oracle processes and opening the database"
+  sleep $i
+done
 
-# Also remove any stale nochk file
+# Enable health check exit
 rm -f "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk"
 

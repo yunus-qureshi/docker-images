@@ -36,7 +36,7 @@ export ORACLE_SID=$(grep "$ORACLE_HOME" /etc/oratab | cut -d: -f1)
 option="$1"
 
 if "$ORACLE_BASE/$LOCKING_SCRIPT" --check --file "$ORACLE_BASE/oradata/.${ORACLE_SID}.exist_lck" &> /dev/null; then
-  # Exist lock held, disable health check
+  # Exist lock held, disable exit on failed health check
   touch "$ORACLE_BASE/oradata/.${ORACLE_SID}.nochk" && sync
 fi
 

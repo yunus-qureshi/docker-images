@@ -21,11 +21,19 @@ fi;
 export ORACLE_SID=$(grep "$ORACLE_HOME" /etc/oratab | cut -d: -f1)
 
 # Start database in nomount mode, shutdown first to abort any zombie procs on restart
-sqlplus / as sysdba << EOF
+for i in {1..10}; do
+  sqlplus / as sysdba << EOF
    shutdown abort;
    startup nomount;
    exit;
 EOF
+  if pgrep -f pmon; then
+    break
+  fi
+  # Sometimes DB locks are not released immediately
+  echo 'Waiting for $i sec(s) before restarting Oracle processes'
+  sleep $i
+done
 
 # startup can get into a wait mode here
 $ORACLE_BASE/scripts/setup/$SWAP_LOCK_FILE

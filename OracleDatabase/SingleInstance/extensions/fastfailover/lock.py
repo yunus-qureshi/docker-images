@@ -63,7 +63,8 @@ def acquire_lock(lock_file, sock_file, block):
             """
             # Hold on to the lock for other container
             # processes to terminate first. Allow 30 secs timeout
-            time.sleep(30)
+            if sig:	    
+                time.sleep(30)
             lock_handle.close()
             listener.close()
             print('[%s]: Lock released on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))

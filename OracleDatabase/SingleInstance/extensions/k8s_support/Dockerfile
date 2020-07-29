@@ -21,7 +21,7 @@ ARG BASE_IMAGE=oracle/database:19.3.0-ee
 FROM ${BASE_IMAGE}
 
 # Extn name
-ARG EXTENSION_NAME=fastfailover
+ARG EXTENSION_NAME=k8s_support
 
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
@@ -44,7 +44,7 @@ RUN mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME" && \
     ln -sf "$ORACLE_BASE/$STARTUP_FILE" /home/oracle/ && \
     ln -sf "$ORACLE_BASE/$SHUT_DB_FILE" /home/oracle/
 
-# Copy updated scripts to support fastfailover
+# Copy updated scripts for k8s support 
 COPY  --chown=oracle:dba $RUN_FILE $START_FILE $STARTUP_FILE $SHUT_DB_FILE $LOCKING_SCRIPT $CHECK_DB_LOCK_FILE $ORACLE_BASE/
 COPY  --chown=oracle:dba $SWAP_LOCK_FILE $ORACLE_BASE/scripts/setup/
 

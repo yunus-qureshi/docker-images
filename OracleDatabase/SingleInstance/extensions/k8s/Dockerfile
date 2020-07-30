@@ -21,7 +21,7 @@ ARG BASE_IMAGE=oracle/database:19.3.0-ee
 FROM ${BASE_IMAGE}
 
 # Extn name
-ARG EXTENSION_NAME=k8s_support
+ARG EXTENSION_NAME=k8s
 
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------

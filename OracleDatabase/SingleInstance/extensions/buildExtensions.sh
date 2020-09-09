@@ -6,8 +6,8 @@
 # 
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 # 
-# Copyright (c) 2014-2019 Oracle and/or its affiliates. All rights reserved.
-# 
+# Copyright (c) 2020 Oracle and/or its affiliates. All rights reserved.
+#
 
 SCRIPT_DIR=$(dirname $0)
 SCRIPT_NAME=$(basename $0)
@@ -17,7 +17,7 @@ usage() {
 
 Usage: $SCRIPT_NAME -a -x [extensions] -b [base image]  -t [image name] [-o] [Docker build option]
 Builds one of more Docker Image Extensions.
-  
+
 Parameters:
    -a: Build all extensions
    -x: Space separated extensions to build. Defaults to all
@@ -28,7 +28,7 @@ Parameters:
 
 LICENSE UPL 1.0
 
-Copyright (c) 2014-2020 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2020 Oracle and/or its affiliates. All rights reserved.
 
 EOF
 

@@ -92,6 +92,7 @@ ENTERPRISE=0
 STANDARD=0
 EXPRESS=0
 VERSION="19.3.0"
+LATEST_RELEASE="19.3.0" # variable to store the latest public release
 SKIPMD5=0
 DOCKEROPS=""
 MIN_DOCKER_VERSION="17.09"
@@ -169,10 +170,14 @@ fi;
 IMAGE_NAME="oracle/database:$VERSION-$EDITION"
 
 # Go into version folder
-cd "$VERSION" || {
+if [ ${VERSION//./} -gt ${LATEST_RELEASE//./} ];then
+  cd "internal_releases";
+  DOCKEROPS="--build-arg MAJOR_VERSION=$(echo $VERSION | cut -d. -f1) $DOCKEROPS";
+else  cd "$VERSION" || {
   echo "Could not find version directory '$VERSION'";
   exit 1;
 }
+fi
 
 if [ ! "$SKIPMD5" -eq 1 ]; then
   checksumPackages

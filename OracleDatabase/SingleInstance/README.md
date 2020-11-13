@@ -119,6 +119,8 @@ This parameter modifies the software home binaries but it doesn't have any effec
 
 The SGA and PGA memory can be set during the first time when database is created by passing the INIT_SGA_SIZE and INIT_PGA_SIZE parameters respectively to the docker run command. The user must provide the values in MB and without any units appended to the values (For example: -e INIT_SGA_SIZE=1536). These parameters are optional and dbca calculates these values if they aren't provided.
 
+In case these parameters are passed to the docker run command while reusing existing datafiles, even though these values would be visible in the container environment, they would not be set inside the database. The values used at the time of database creation will be used.
+
 #### Changing the admin accounts passwords
 
 On the first startup of the container a random password will be generated for the database if not provided. You can find this password in the output line:  
@@ -221,6 +223,9 @@ Once the container has been started you can connect to it just like to any other
 
 	sqlplus sys/<your password>@//localhost:1521/XE as sysdba
 	sqlplus system/<your password>@//localhost:1521/XE
+
+### Deploying Oracle Database on Kubernetes
+Helm is a package manager which uses a packaging format called charts. [helm-charts](helm-charts/) directory contains all the relevant files needed to deploy Oracle Database on Kubernetes. For more information on default configuration, installing/uninstalling the Oracle Database chart on Kubernetes, please refer [helm-charts/oracle-db/README.md](helm-charts/oracle-db/README.md).
 
 ### Running SQL*Plus in a Docker container
 You may use the same Docker image you used to start the database, to run `sqlplus` to connect to it, for example:

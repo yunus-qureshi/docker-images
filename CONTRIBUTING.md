@@ -26,7 +26,7 @@ Signed-off-by: Your Name <you@example.org>
 ```
 
 This will be automatically added to pull requests if you using the `signoff`
-parameter when commiting your changes:
+parameter when committing your changes:
 
 ```bash
   git commit [--signoff|-S]
@@ -43,7 +43,7 @@ for details.
 The GitHub user who submits the initial pull request to add a new product image
 should add themselves to the [code owner](./CODEOWNERS) file in that same
 request. This will flag the user as the owner of the content and any future pull
-requests that affect the conten will need to be approved by this user.
+requests that affect the content will need to be approved by this user.
 
 The code owner will also be assigned to any issues relating to their content.
 
@@ -193,7 +193,7 @@ merged, but are generally frowned upon if breached.
 * Always aim to produce the smallest possible image. This means using multi-stage
   builds with a final stage using the least amount of layers possible. Combine
   as much as possible within a single directive and be sure to remove any
-  cache created `yum` or other tools.
+  cache created by `yum` or other tools.
 * Don't install all possible required RPMs, even if the product
   documentation says so. Some RPMs aren't applicable inside a container, e.g
   filesystem utilities (`btrfs-progs`, `ocfs2-tools`, `nfs-utils`).

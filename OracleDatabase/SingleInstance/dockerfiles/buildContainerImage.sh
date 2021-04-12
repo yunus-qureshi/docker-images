@@ -130,6 +130,7 @@ while getopts "hesxiav:o:" optname; do
       ;;
     "a")
       ENABLE_ARCHIVE=true
+      ;;
     "e")
       ENTERPRISE=1
       ;;
@@ -238,7 +239,7 @@ echo "Building image '${IMAGE_NAME}' ..."
 BUILD_START=$(date '+%s')
 "${CONTAINER_RUNTIME}" build --force-rm=true --no-cache=true \
        "${BUILD_OPTS[@]}" "${PROXY_SETTINGS[@]}" --build-arg DB_EDITION=${EDITION} \
-       --buld-arg ENABLE_ARCHIVELOG=${ENABLE_ARCHIVE} \
+       --build-arg ENABLE_ARCHIVELOG=${ENABLE_ARCHIVE} \
        -t "${IMAGE_NAME}" -f "${DOCKERFILE}" . || {
   echo ""
   echo "ERROR: Oracle Database container image was NOT successfully created."

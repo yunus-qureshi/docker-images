@@ -37,9 +37,6 @@ LABEL "provider"="Oracle"                                               \
 # Argument to control removal of components not needed after db software installation
 ARG SLIMMING=true
 
-# Argument to enable archiveLogMode in database
-ARG ENABLE_ARCHIVELOG=false
-
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
 ENV ORACLE_BASE=/opt/oracle \
@@ -59,7 +56,7 @@ ENV ORACLE_BASE=/opt/oracle \
     INSTALL_DB_BINARIES_FILE="installDBBinaries.sh" \
     RELINK_BINARY_FILE="relinkOracleBinary.sh" \
     SLIMMING=$SLIMMING \
-    ENABLE_ARCHIVELOG=${ENABLE_ARCHIVELOG}
+    ENABLE_ARCHIVELOG=false
 
 # Use second ENV so that variable get substituted
 ENV PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch/:/usr/sbin:$PATH \

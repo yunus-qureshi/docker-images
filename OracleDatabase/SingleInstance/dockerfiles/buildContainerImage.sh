@@ -12,7 +12,7 @@
 usage() {
   cat << EOF
 
-Usage: buildContainerImage.sh -v [version] [-e | -s | -x] [-i] [-a] [-o] [container build option]
+Usage: buildContainerImage.sh -v [version] [-e | -s | -x] [-i] [-o] [container build option]
 Builds a container image for Oracle Database.
 
 Parameters:
@@ -22,7 +22,6 @@ Parameters:
    -s: creates image based on 'Standard Edition 2'
    -x: creates image based on 'Express Edition'
    -i: ignores the MD5 checksums
-   -a: enable archiveLogMode in database
    -o: passes on container build option
 
 * select one edition only: -e, -s, or -x
@@ -112,14 +111,13 @@ declare -a BUILD_OPTS
 MIN_DOCKER_VERSION="17.09"
 MIN_PODMAN_VERSION="1.6.0"
 DOCKERFILE="Dockerfile"
-ENABLE_ARCHIVE=false
 
 if [ "$#" -eq 0 ]; then
   usage;
   exit 1;
 fi
 
-while getopts "hesxiav:o:" optname; do
+while getopts "hesxiv:o:" optname; do
   case "${optname}" in
     "h")
       usage
@@ -127,9 +125,6 @@ while getopts "hesxiav:o:" optname; do
       ;;
     "i")
       SKIPMD5=1
-      ;;
-    "a")
-      ENABLE_ARCHIVE=true
       ;;
     "e")
       ENTERPRISE=1
@@ -239,7 +234,6 @@ echo "Building image '${IMAGE_NAME}' ..."
 BUILD_START=$(date '+%s')
 "${CONTAINER_RUNTIME}" build --force-rm=true --no-cache=true \
        "${BUILD_OPTS[@]}" "${PROXY_SETTINGS[@]}" --build-arg DB_EDITION=${EDITION} \
-       --build-arg ENABLE_ARCHIVELOG=${ENABLE_ARCHIVE} \
        -t "${IMAGE_NAME}" -f "${DOCKERFILE}" . || {
   echo ""
   echo "ERROR: Oracle Database container image was NOT successfully created."

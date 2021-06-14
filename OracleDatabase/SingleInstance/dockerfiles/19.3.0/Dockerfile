@@ -66,6 +66,7 @@ ENV ORACLE_BASE=/opt/oracle \
     DG_OBSERVER_ONLY=false \
     DG_OBSERVER_NAME=""
 
+
 # Use second ENV so that variable get substituted
 ENV PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch/:/usr/sbin:$PATH \
     LD_LIBRARY_PATH=$ORACLE_HOME/lib:/usr/lib \

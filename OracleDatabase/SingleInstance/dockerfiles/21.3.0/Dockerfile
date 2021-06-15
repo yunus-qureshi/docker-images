@@ -64,7 +64,7 @@ ENV ORACLE_BASE=/opt/oracle \
     STANDBY_DB=false \
     PRIMARY_DB_CONN_STR="" \
     DG_OBSERVER_ONLY=false \
-    DG_OBSERVER_NAME=""
+    DG_OBSERVER_NAME="" \
     CHECKPOINT_FILE=".db_created"
 
 # Use second ENV so that variable get substituted

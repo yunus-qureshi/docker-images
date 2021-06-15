@@ -164,8 +164,8 @@ else
     sed -i -e "s|initParams=.*|&,sga_target=${INIT_SGA_SIZE}M,pga_aggregate_target=${INIT_PGA_SIZE}M|g" $ORACLE_BASE/dbca.rsp
 fi;
 
-# Change value of the numberOfPDBs to 0 if WITHOUT_PDB flag is true
-if [ "$WITHOUT_PDB" = "true" ]; then
+# Change value of the numberOfPDBs to 0 if CREATE_PDB flag is true
+if [ "$CREATE_PDB" = "false" ]; then
   sed -i "s|numberOfPDBs=1|numberOfPDBs=0|g" $ORACLE_BASE/dbca.rsp
 fi
 
@@ -197,7 +197,7 @@ dbca -silent -createDatabase -enableArchive $ENABLE_ARCHIVELOG -archiveLogDest $
 
 echo "$ORACLE_SID=localhost:1521/$ORACLE_SID" > $ORACLE_BASE_HOME/network/admin/tnsnames.ora
 
-if [ "$WITHOUT_PDB" = "false" ]; then
+if [ "$CREATE_PDB" = "true" ]; then
   echo "$ORACLE_PDB= 
 (DESCRIPTION = 
   (ADDRESS = (PROTOCOL = TCP)(HOST = 0.0.0.0)(PORT = 1521))

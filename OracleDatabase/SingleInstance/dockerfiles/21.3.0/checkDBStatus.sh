@@ -79,7 +79,7 @@ else
    ORAENV_ASK=NO
    source oraenv
    checkDatabaseRole
-   if [ "$WITHOUT_PDB" = "false" ]; then
+   if [ "$CREATE_PDB" = "true" ]; then
       checkPDBOpen
    fi;
 fi

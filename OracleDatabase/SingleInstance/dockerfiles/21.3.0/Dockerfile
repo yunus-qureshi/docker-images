@@ -66,7 +66,7 @@ ENV ORACLE_BASE=/opt/oracle \
     DG_OBSERVER_ONLY=false \
     DG_OBSERVER_NAME="" \
     CHECKPOINT_FILE=".db_created" \
-    WITHOUT_PDB=false
+    CREATE_PDB=true
 
 # Use second ENV so that variable get substituted
 ENV PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch/:/usr/sbin:$PATH \

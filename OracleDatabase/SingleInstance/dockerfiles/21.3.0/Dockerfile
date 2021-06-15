@@ -1,6 +1,6 @@
 # LICENSE UPL 1.0
 #
-# Copyright (c) 2018, 2020 Oracle and/or its affiliates.
+# Copyright (c) 2018, 2021 Oracle and/or its affiliates.
 #
 # ORACLE DOCKERFILES PROJECT
 # --------------------------
@@ -65,6 +65,7 @@ ENV ORACLE_BASE=/opt/oracle \
     PRIMARY_DB_CONN_STR="" \
     DG_OBSERVER_ONLY=false \
     DG_OBSERVER_NAME=""
+    CHECKPOINT_FILE=".db_created"
 
 # Use second ENV so that variable get substituted
 ENV PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch/:/usr/sbin:$PATH \

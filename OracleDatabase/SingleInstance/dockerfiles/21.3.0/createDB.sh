@@ -164,6 +164,11 @@ else
     sed -i -e "s|initParams=.*|&,sga_target=${INIT_SGA_SIZE}M,pga_aggregate_target=${INIT_PGA_SIZE}M|g" $ORACLE_BASE/dbca.rsp
 fi;
 
+# Change value of the numberOfPDBs to 0 if WITHOUT_PDB flag is true
+if [ "$WITHOUT_PDB" = "true" ]; then
+  sed -i "s|numberOfPDBs=1|numberOfPDBs=0|g" $ORACLE_BASE/dbca.rsp
+fi
+
 # Create network related config files (sqlnet.ora, tnsnames.ora, listener.ora)
 mkdir -p $ORACLE_BASE_HOME/network/admin
 echo "NAME.DIRECTORY_PATH= (TNSNAMES, EZCONNECT, HOSTNAME)" > $ORACLE_BASE_HOME/network/admin/sqlnet.ora
@@ -191,23 +196,34 @@ dbca -silent -createDatabase -enableArchive $ENABLE_ARCHIVELOG -archiveLogDest $
  cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID.log
 
 echo "$ORACLE_SID=localhost:1521/$ORACLE_SID" > $ORACLE_BASE_HOME/network/admin/tnsnames.ora
-echo "$ORACLE_PDB= 
-  (DESCRIPTION = 
-    (ADDRESS = (PROTOCOL = TCP)(HOST = 0.0.0.0)(PORT = 1521))
-    (CONNECT_DATA =
-      (SERVER = DEDICATED)
-      (SERVICE_NAME = $ORACLE_PDB)
-    )
-  )" >> $ORACLE_BASE_HOME/network/admin/tnsnames.ora
 
-# Remove second control file, fix local_listener, make PDB auto open, enable EM global port
-sqlplus / as sysdba << EOF
-   ALTER SYSTEM SET control_files='$ORACLE_BASE/oradata/$ORACLE_SID/control01.ctl' scope=spfile;
-   ALTER SYSTEM SET local_listener='';
-   ALTER PLUGGABLE DATABASE $ORACLE_PDB SAVE STATE;
-   EXEC DBMS_XDB_CONFIG.SETGLOBALPORTENABLED (TRUE);
-   exit;
+if [ "$WITHOUT_PDB" = "false" ]; then
+  echo "$ORACLE_PDB= 
+(DESCRIPTION = 
+  (ADDRESS = (PROTOCOL = TCP)(HOST = 0.0.0.0)(PORT = 1521))
+  (CONNECT_DATA =
+    (SERVER = DEDICATED)
+    (SERVICE_NAME = $ORACLE_PDB)
+  )
+)" >> $ORACLE_BASE_HOME/network/admin/tnsnames.ora
+
+  # Remove second control file, fix local_listener, make PDB auto open, enable EM global port
+  sqlplus / as sysdba << EOF
+ALTER SYSTEM SET control_files='$ORACLE_BASE/oradata/$ORACLE_SID/control01.ctl' scope=spfile;
+ALTER SYSTEM SET local_listener='';
+ALTER PLUGGABLE DATABASE $ORACLE_PDB SAVE STATE;
+EXEC DBMS_XDB_CONFIG.SETGLOBALPORTENABLED (TRUE);
+exit;
 EOF
+else
+  # Remove second control file, fix local_listener, enable EM global port
+  sqlplus / as sysdba << EOF
+ALTER SYSTEM SET control_files='$ORACLE_BASE/oradata/$ORACLE_SID/control01.ctl' scope=spfile;
+ALTER SYSTEM SET local_listener='';
+EXEC DBMS_XDB_CONFIG.SETGLOBALPORTENABLED (TRUE);
+exit;
+EOF
+fi;
 
 # Remove temporary response file
 rm $ORACLE_BASE/dbca.rsp

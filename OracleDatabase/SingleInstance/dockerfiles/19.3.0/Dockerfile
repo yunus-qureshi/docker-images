@@ -59,13 +59,13 @@ ENV ORACLE_BASE=/opt/oracle \
     SLIMMING=$SLIMMING \
     ENABLE_ARCHIVELOG=false \
     ARCHIVELOG_DIR_NAME=archive_logs \
-    CHECKPOINT_FILE=".db_created" \
     CLONE_DB=false \
     STANDBY_DB=false \
     PRIMARY_DB_CONN_STR="" \
     DG_OBSERVER_ONLY=false \
-    DG_OBSERVER_NAME=""
-
+    DG_OBSERVER_NAME="" \
+    CHECKPOINT_FILE=".db_created" \
+    CREATE_PDB=true
 
 # Use second ENV so that variable get substituted
 ENV PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch/:/usr/sbin:$PATH \

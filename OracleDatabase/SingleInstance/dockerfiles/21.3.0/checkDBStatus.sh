@@ -17,7 +17,7 @@
 # Function to check database role: either Primary or Secondary
 checkDatabaseRole() {
    # Obtain DB_ROLE using SQLPlus
-   DB_ROLE=`sqlplus -s / as sysdba << EOF
+   DB_ROLE=`sqlplus -s / << EOF
 set heading off;
 set pagesize 0;
 SELECT database_role FROM v\\$database ;
@@ -38,7 +38,7 @@ EOF
 # Or in case of Secondary Database PDBs should be opened only in "READ ONLY" mode 
 checkPDBOpen() {
    # Obtain OPEN_MODE for PDB using SQLPlus
-   PDB_OPEN_MODE=`sqlplus -s / as sysdba << EOF
+   PDB_OPEN_MODE=`sqlplus -s / << EOF
 set heading off;
 set pagesize 0;
 SELECT DISTINCT open_mode FROM v\\$pdbs;
@@ -48,7 +48,7 @@ EOF
    # Store return code from SQL*Plus
    ret=$?
 
-   if [ $ret -eq 0 ] && [ "$DB_ROLE" = "PRIMARY" ] && [ "`echo ${PDB_OPEN_MODE} | cut -d ' ' -f3,4`" != "READ WRITE" ]; then
+   if [ $ret -eq 0 ] && [ "$DB_ROLE" = "PRIMARY" ] && `echo $PDB_OPEN_MODE | grep -q "READ WRITE"`; then
       exit 2
    elif [ $ret -eq 0 ] && [ "$DB_ROLE" = "PHYSICAL STANDBY" ] && [ "$PDB_OPEN_MODE" != "READ ONLY" ]; then
       exit 2

@@ -164,7 +164,7 @@ else
     sed -i -e "s|initParams=.*|&,sga_target=${INIT_SGA_SIZE}M,pga_aggregate_target=${INIT_PGA_SIZE}M|g" $ORACLE_BASE/dbca.rsp
 fi;
 
-# Change value of the numberOfPDBs to 0 if CREATE_PDB flag is true
+# Change value of the numberOfPDBs to 0 if CREATE_PDB flag is false
 if [ "$CREATE_PDB" = "false" ]; then
   sed -i "s|numberOfPDBs=1|numberOfPDBs=0|g" $ORACLE_BASE/dbca.rsp
 fi
@@ -207,23 +207,29 @@ if [ "$CREATE_PDB" = "true" ]; then
   )
 )" >> $ORACLE_BASE_HOME/network/admin/tnsnames.ora
 
-  # Remove second control file, fix local_listener, make PDB auto open, enable EM global port
+  # Make PDB auto open
   sqlplus / as sysdba << EOF
-ALTER SYSTEM SET control_files='$ORACLE_BASE/oradata/$ORACLE_SID/control01.ctl' scope=spfile;
-ALTER SYSTEM SET local_listener='';
-ALTER PLUGGABLE DATABASE $ORACLE_PDB SAVE STATE;
-EXEC DBMS_XDB_CONFIG.SETGLOBALPORTENABLED (TRUE);
-exit;
-EOF
-else
-  # Remove second control file, fix local_listener, enable EM global port
-  sqlplus / as sysdba << EOF
-ALTER SYSTEM SET control_files='$ORACLE_BASE/oradata/$ORACLE_SID/control01.ctl' scope=spfile;
-ALTER SYSTEM SET local_listener='';
-EXEC DBMS_XDB_CONFIG.SETGLOBALPORTENABLED (TRUE);
-exit;
+    ALTER PLUGGABLE DATABASE $ORACLE_PDB SAVE STATE;
+    exit;
 EOF
 fi;
+
+# Remove second control file, fix local_listener, make PDB auto open, enable EM global port
+# Create externally mapped oracle user for health check
+  sqlplus / as sysdba << EOF
+ALTER SYSTEM SET control_files='$ORACLE_BASE/oradata/$ORACLE_SID/control01.ctl' scope=spfile;
+ALTER SYSTEM SET local_listener='';
+EXEC DBMS_XDB_CONFIG.SETGLOBALPORTENABLED (TRUE);
+
+ALTER SESSION SET "_oracle_script" = true;
+CREATE USER OPS\$oracle IDENTIFIED EXTERNALLY;
+GRANT CREATE SESSION TO OPS\$oracle;
+GRANT SELECT ON sys.v_\$pdbs TO OPS\$oracle;
+GRANT SELECT ON sys.v_\$database TO OPS\$oracle;
+ALTER USER OPS\$oracle SET container_data=all for sys.v_\$pdbs container = current;
+
+exit;
+EOF
 
 # Remove temporary response file
 rm $ORACLE_BASE/dbca.rsp

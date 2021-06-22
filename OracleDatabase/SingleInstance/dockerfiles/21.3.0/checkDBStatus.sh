@@ -48,7 +48,7 @@ EOF
    # Store return code from SQL*Plus
    ret=$?
 
-   if [ $ret -eq 0 ] && [ "$DB_ROLE" = "PRIMARY" ] && `echo $PDB_OPEN_MODE | grep -q "READ WRITE"`; then
+   if [ $ret -eq 0 ] && [ "$DB_ROLE" = "PRIMARY" ] && ! `echo $PDB_OPEN_MODE | grep -q "READ WRITE"`; then
       exit 2
    elif [ $ret -eq 0 ] && [ "$DB_ROLE" = "PHYSICAL STANDBY" ] && [ "$PDB_OPEN_MODE" != "READ ONLY" ]; then
       exit 2

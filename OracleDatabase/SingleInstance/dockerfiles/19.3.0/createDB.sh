@@ -100,7 +100,9 @@ ${ORACLE_SID} =
 EOF
 
   # Re-creating listener.ora for aiding DG configuration
-  
+  # First stopping the listener
+  lsnrctl stop
+
   cat > $ORACLE_HOME/network/admin/listener.ora<<EOF
 LISTENER =
   (DESCRIPTION_LIST =
@@ -125,8 +127,8 @@ SID_LIST_LISTENER =
   )
 EOF
 
-  # Reload the listener
-  lsnrctl reload
+  # Start the listener once again
+  lsnrctl start
 
   # Enabling flashback database in Standby database
   sqlplus -s / as sysdba <<EOF

@@ -104,9 +104,6 @@ if [[ "${CLONE_DB}" == "true" ]] || [[ "${STANDBY_DB}" == "true" ]]; then
     dbca -silent -createDuplicateDB -gdbName ${PRIMARY_DB_NAME} -primaryDBConnectionString ${PRIMARY_DB_CONN_STR} -sysPassword ${ORACLE_PWD} -sid ${ORACLE_SID} -createAsStandby -dbUniquename ${ORACLE_SID} ORACLE_HOSTNAME=${ORACLE_HOSTNAME} ||
       cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID/$ORACLE_SID.log ||
       cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID.log
-
-    # Enabling flashback database in Standby database
-    sqlplus -s / as sysdba < "ALTER DATABASE FLASHBACK ON;"
   else
     # Creating clone database after duplicating a primary database; CLONE_DB is set to true here
     dbca -silent -createDuplicateDB -gdbName ${ORACLE_SID} -primaryDBConnectionString ${PRIMARY_DB_CONN_STR} -sysPassword ${ORACLE_PWD} -sid ${ORACLE_SID} -databaseConfigType SINGLE -useOMF true -dbUniquename ${ORACLE_SID} ORACLE_HOSTNAME=${ORACLE_HOSTNAME} ||

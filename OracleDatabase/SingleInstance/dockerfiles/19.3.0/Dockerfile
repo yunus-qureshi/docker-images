@@ -59,14 +59,19 @@ ENV ORACLE_BASE=/opt/oracle \
     SLIMMING=$SLIMMING \
     ENABLE_ARCHIVELOG=false \
     ARCHIVELOG_DIR_NAME=archive_logs \
-    CHECKPOINT_FILE_EXTN=".created" \
+    # To clone a database referred by PRIMARY_DB_CONN_STR
     CLONE_DB=false \
+    # To create a standby database referred by PRIMARY_DB_CONN_STR
     STANDBY_DB=false \
+    # Env var below should be in <HOST>:<PORT>/<SERVICE_NAME> format
     PRIMARY_DB_CONN_STR="" \
+    # For creating dataguard observer
     DG_OBSERVER_ONLY=false \
     DG_OBSERVER_NAME="" \
-    CREATE_PDB=true
-    
+    # if CREATE_PDB is false, default PDB is not created
+    CREATE_PDB=true \
+    CHECKPOINT_FILE_EXTN=".created"
+
 # Use second ENV so that variable get substituted
 ENV PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch/:/usr/sbin:$PATH \
     LD_LIBRARY_PATH=$ORACLE_HOME/lib:/usr/lib \

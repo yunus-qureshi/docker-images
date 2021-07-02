@@ -64,6 +64,7 @@ ENV ORACLE_BASE=/opt/oracle \
     CREATE_DB_FILE="createDB.sh" \
     SETUP_LINUX_FILE="setupLinuxEnv.sh" \
     CHECK_DB_FILE="checkDBStatus.sh" \
+    CHECK_DB_LOCK_FILE="checkDBLockStatus.sh" \
     USER_SCRIPTS_FILE="runUserScripts.sh" \
     INSTALL_DB_BINARIES_FILE="installDBBinaries.sh" \
     RELINK_BINARY_FILE="relinkOracleBinary.sh" \
@@ -109,7 +110,7 @@ USER oracle
 WORKDIR /home/oracle
 
 HEALTHCHECK --interval=1m --start-period=5m \
-   CMD "$ORACLE_BASE/$CHECK_DB_FILE" >/dev/null || exit 1
+   CMD "if test -e $ORACLE_BASE/$CHECK_DB_LOCK_FILE; then $ORACLE_BASE/$CHECK_DB_LOCK_FILE; else $ORACLE_BASE/$CHECK_DB_FILE; fi" >/dev/null || exit 1
 
 # Define default command to start Oracle Database. 
 CMD exec $ORACLE_BASE/$RUN_FILE

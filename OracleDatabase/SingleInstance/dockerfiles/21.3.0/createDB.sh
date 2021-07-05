@@ -15,7 +15,7 @@
 
 set -e
 
-############## Setting up network related config files (sqlnet.ora, tnsnames.ora, listener.ora) ##############
+############## Setting up network related config files (sqlnet.ora, listener.ora) ##############
 function setupNetworkConfig {
   mkdir -p $ORACLE_BASE_HOME/network/admin
 

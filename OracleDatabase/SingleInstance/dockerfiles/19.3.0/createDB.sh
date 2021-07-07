@@ -151,7 +151,7 @@ fi;
    sed -i "s|numberOfPDBs=1|numberOfPDBs=0|g" $ORACLE_BASE/dbca.rsp
  fi
 
-# Create network related config files (sqlnet.ora, tnsnames.ora, listener.ora)
+# Create network related config files (sqlnet.ora, listener.ora)
 setupNetworkConfig;
 
 # Directory for storing archive logs

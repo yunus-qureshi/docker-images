@@ -71,7 +71,9 @@ ENV ORACLE_BASE=/opt/oracle \
     DG_OBSERVER_NAME="" \
     # if CREATE_PDB is false, default PDB is not created
     CREATE_PDB=true \
-    CHECKPOINT_FILE_EXTN=".created"
+    CHECKPOINT_FILE_EXTN=".created" \
+    # Databse Init Parameters: should be a string of format "<key1>=<value1>,<key2>=<value2> ..."
+    INIT_PARAMS=""
 
 # Use second ENV so that variable get substituted
 ENV PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch/:/usr/sbin:$PATH \

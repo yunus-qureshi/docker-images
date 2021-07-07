@@ -15,7 +15,7 @@
 
 set -e
 
-############## Setting up network related config files (sqlnet.ora, tnsnames.ora, listener.ora) ##############
+############## Setting up network related config files (sqlnet.ora, listener.ora) ##############
 function setupNetworkConfig {
   mkdir -p $ORACLE_HOME/network/admin
 
@@ -34,6 +34,12 @@ function setupNetworkConfig {
 DEDICATED_THROUGH_BROKER_LISTENER=ON
 DIAG_ADR_ENABLED = off
 " > $ORACLE_HOME/network/admin/listener.ora
+
+}
+
+####################### Setting up tnsnames.ora ##############################
+function setupTnsnames {
+  mkdir -p $ORACLE_HOME/network/admin
 
   # tnsnames.ora
   echo "$ORACLE_SID=localhost:1521/$ORACLE_SID" > $ORACLE_HOME/network/admin/tnsnames.ora
@@ -89,14 +95,6 @@ if [[ "${CLONE_DB}" == "true" ]] || [[ "${STANDBY_DB}" == "true" ]]; then
 
   # Primary database parameters extration
   PRIMARY_DB_NAME=$(echo "${PRIMARY_DB_CONN_STR}" | cut -d '/' -f 2)
-  PRIMARY_DB_IP=$(echo "${PRIMARY_DB_CONN_STR}" | cut -d ':' -f 1)
-  PRIMARY_DB_PORT=$(echo "${PRIMARY_DB_CONN_STR}" | cut -d ':' -f 2 | cut -d '/' -f 1)
-
-  # Setup network related configuration
-  setupNetworkConfig;
-
-  # Starting Listener
-  lsnrctl start;
 
   # Creating the database using the dbca command
   if [ "${STANDBY_DB}" = "true" ]; then
@@ -110,6 +108,18 @@ if [[ "${CLONE_DB}" == "true" ]] || [[ "${STANDBY_DB}" == "true" ]]; then
       cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID/$ORACLE_SID.log ||
       cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID.log
   fi
+
+  # Setup tnsnames.ora after DBCA command execution, otherwise tnsnames gets overwritten by DBCA
+  setupTnsnames;
+
+  # Stopping the Listener
+  lsnrctl stop;
+
+  # Setup other network related configuration (sqlnet.ora, listener.ora)
+  setupNetworkConfig;
+
+  # Starting the Listener
+  lsnrctl start;
 
   exit 0
 fi
@@ -141,7 +151,7 @@ fi;
    sed -i "s|numberOfPDBs=1|numberOfPDBs=0|g" $ORACLE_BASE/dbca.rsp
  fi
 
-# Create network related config files (sqlnet.ora, tnsnames.ora, listener.ora)
+# Create network related config files (sqlnet.ora, listener.ora)
 setupNetworkConfig;
 
 # Directory for storing archive logs
@@ -152,6 +162,9 @@ lsnrctl start &&
 dbca -silent -createDatabase -enableArchive $ENABLE_ARCHIVELOG -archiveLogDest $ARCHIVELOG_DIR -responseFile $ORACLE_BASE/dbca.rsp ||
  cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID/$ORACLE_SID.log ||
  cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID.log
+
+# Setup tnsnames.ora after DBCA command execution, otherwise tnsnames gets overwritten by DBCA
+setupTnsnames;
 
 if [ "$CREATE_PDB" = "true" ]; then
   # Make PDB auto open

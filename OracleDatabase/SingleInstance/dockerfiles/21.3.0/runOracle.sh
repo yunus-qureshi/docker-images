@@ -197,18 +197,18 @@ if [ -f $ORACLE_BASE/oradata/.${ORACLE_SID}${CHECKPOINT_FILE_EXTN} ]; then
    $ORACLE_BASE/$START_FILE;
    
 else
-  # shutdown database   
-  sqlplus / as sysdba <<EOF
-  shutdown abort;
-  exit;
-EOF
-
   # Remove database config files, if they exist
   rm -f $ORACLE_BASE_CONFIG/dbs/spfile$ORACLE_SID.ora
   rm -f $ORACLE_BASE_CONFIG/dbs/orapw$ORACLE_SID
   rm -f $ORACLE_BASE_HOME/network/admin/sqlnet.ora
   rm -f $ORACLE_BASE_HOME/network/admin/listener.ora
   rm -f $ORACLE_BASE_HOME/network/admin/tnsnames.ora
+
+  # shutdown database   
+  sqlplus / as sysdba <<EOF
+  shutdown abort;
+  exit;
+EOF
 
   # Clean up incomplete database
   rm -rf $ORACLE_BASE/oradata/$ORACLE_SID

@@ -204,12 +204,6 @@ else
   rm -f $ORACLE_BASE_HOME/network/admin/listener.ora
   rm -f $ORACLE_BASE_HOME/network/admin/tnsnames.ora
 
-  # shutdown database   
-  sqlplus / as sysdba <<EOF
-  shutdown abort;
-  exit;
-EOF
-
   # Clean up incomplete database
   rm -rf $ORACLE_BASE/oradata/$ORACLE_SID
   cp /etc/oratab oratab.bkp
@@ -219,7 +213,7 @@ EOF
   rm -rf $ORACLE_BASE/admin/$ORACLE_SID
 
   # Create database
-  $ORACLE_BASE/$CREATE_DB_FILE $ORACLE_SID $ORACLE_PDB $ORACLE_PWD || exit 1;
+  $ORACLE_BASE/$CREATE_DB_FILE $ORACLE_SID $ORACLE_PDB $ORACLE_PWD || sleep 1000 && exit 1;
 
   # Check whether database is successfully created
   $ORACLE_BASE/$CHECK_DB_FILE

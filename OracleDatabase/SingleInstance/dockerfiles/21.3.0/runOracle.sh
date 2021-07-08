@@ -203,7 +203,7 @@ else
   rm -f $ORACLE_BASE_HOME/network/admin/sqlnet.ora
   rm -f $ORACLE_BASE_HOME/network/admin/listener.ora
   rm -f $ORACLE_BASE_HOME/network/admin/tnsnames.ora
-   
+
   # Clean up incomplete database
   rm -rf $ORACLE_BASE/oradata/$ORACLE_SID
   cp /etc/oratab oratab.bkp
@@ -211,6 +211,10 @@ else
   rm -f oratab.bkp
   rm -rf $ORACLE_BASE/cfgtoollogs/dbca/$ORACLE_SID
   rm -rf $ORACLE_BASE/admin/$ORACLE_SID
+
+  # clean up zombie shared memory/semaphores
+  ipcs -m | awk ' /[0-9]/ {print $2}' | xargs -n1 ipcrm -m 2> /dev/null
+  ipcs -s | awk ' /[0-9]/ {print $2}' | xargs -n1 ipcrm -s 2> /dev/null
 
   # Create database
   $ORACLE_BASE/$CREATE_DB_FILE $ORACLE_SID $ORACLE_PDB $ORACLE_PWD || exit 1;

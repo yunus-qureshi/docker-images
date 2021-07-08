@@ -147,12 +147,6 @@ if [ "$CREATE_PDB" = "false" ]; then
   sed -i "s|numberOfPDBs=1|numberOfPDBs=0|g" $ORACLE_BASE/dbca.rsp
 fi
 
-# Adding additional Database Init Parameters
-if [[ ! -z "${INIT_PARAMS}" ]]; then
-  INIT_PARAMS=",${INIT_PARAMS}"
-fi
-sed -i -e "s|###INIT_PARAMS###|$INIT_PARAMS|g" $ORACLE_BASE/dbca.rsp
-
 # Create network related config files (sqlnet.ora, tnsnames.ora, listener.ora)
 setupNetworkConfig;
 

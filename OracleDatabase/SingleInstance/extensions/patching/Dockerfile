@@ -80,6 +80,9 @@ ENV PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch/:/usr/sbin:$PATH \
     LD_LIBRARY_PATH=$ORACLE_HOME/lib:/usr/lib \
     CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
 
+# Extn name
+ARG EXTENSION_NAME="patching"
+
 # Copy files needed during both installation and runtime
 # -------------
 COPY $SETUP_LINUX_FILE $INSTALL_DIR/
@@ -110,7 +113,24 @@ USER oracle
 WORKDIR /home/oracle
 
 HEALTHCHECK --interval=1m --start-period=5m \
-   CMD "if test -e $ORACLE_BASE/$CHECK_DB_LOCK_FILE; then $ORACLE_BASE/$CHECK_DB_LOCK_FILE; else $ORACLE_BASE/$CHECK_DB_FILE; fi" >/dev/null || exit 1
+   CMD "if test -f $ORACLE_BASE/$CHECK_DB_LOCK_FILE; then $ORACLE_BASE/$CHECK_DB_LOCK_FILE; else $ORACLE_BASE/$CHECK_DB_FILE; fi" >/dev/null || exit 1
+
+# backup origin runOracle
+RUN if test -e "$ORACLE_BASE/$RUN_FILE.orig"; then EXTN='extended'; else EXTN='orig'; fi ; \
+    mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTN"
+
+# Copy updated runOracle.sh
+COPY  --chown=oracle:dba $RUN_FILE $ORACLE_BASE/
+RUN mv "$ORACLE_BASE/$RUN_FILE" "$ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME"
+
+# Append a call to main runOracle
+RUN if test -e "$ORACLE_BASE/$RUN_FILE.extended"; then \
+        mv "$ORACLE_BASE/$RUN_FILE.extended" "$ORACLE_BASE/$RUN_FILE" ; \
+     else echo ". $ORACLE_BASE/$RUN_FILE.orig" > "$ORACLE_BASE/$RUN_FILE" ; fi ; \
+     if ! grep "$RUN_FILE.$EXTENSION_NAME" "$ORACLE_BASE/$RUN_FILE"; then \
+        sed  -i "1i . $ORACLE_BASE/$RUN_FILE.$EXTENSION_NAME" "$ORACLE_BASE/$RUN_FILE"; \
+     fi && \
+     chmod ug+x $ORACLE_BASE/*.sh && sync
 
 # Define default command to start Oracle Database. 
 CMD exec $ORACLE_BASE/$RUN_FILE

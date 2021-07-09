@@ -24,10 +24,8 @@ from multiprocessing.connection import Listener, Client
 # Multiprocess communication auth key
 AUTHKEY = 'vkidSQkgAHc='
 
-# in secs
-HEARTBEAT = 5
 
-def acquire_lock(lock_file, sock_file, block):
+def acquire_lock(lock_file, sock_file, block, heartbeat):
     """
     Acquire a lock on the passed file, block if needed
     :param lock_file:
@@ -35,7 +33,8 @@ def acquire_lock(lock_file, sock_file, block):
     :param block:
     :return:
     """
-    print('[%s]: Acquiring lock on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
+    print('[%s]: Acquiring lock on %s with heartbeat %s' %
+         (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, heartbeat))
     lock_handle = open(lock_file, 'w')
     while True:
         try:
@@ -48,7 +47,7 @@ def acquire_lock(lock_file, sock_file, block):
                 return 1
             # to handle stale NFS locks
             mtime = os.path.getmtime(lock_file)
-            if time.time() - mtime > HEARTBEAT:
+            if time.time() - mtime > heartbeat:
                 # something is wrong
                 print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
                 lock_handle.close()
@@ -93,7 +92,7 @@ def acquire_lock(lock_file, sock_file, block):
 
         while not lock_handle.closed:
             os.utime(lock_file, None)
-            time.sleep(HEARTBEAT)
+            time.sleep(heartbeat)
 
 
 def check_lock(sock_file):
@@ -138,6 +137,7 @@ def main():
     parser.add_argument('--release', action='store_true', dest='release')
     parser.add_argument('--file', dest='lock_file')
     parser.add_argument('--block', action='store_true', dest='block')
+    parser.add_argument('--heartbeat', type=int, dest='heartbeat', default=30)
     args = parser.parse_args()
     if not args.lock_file:
         parser.print_help()
@@ -145,7 +145,7 @@ def main():
     # Derive sock_file name from lock_file
     sock_file = os.path.join(tempfile.gettempdir(), os.path.basename(args.lock_file))
     if args.acquire:
-        sys.exit(acquire_lock(args.lock_file, sock_file, args.block))
+        sys.exit(acquire_lock(args.lock_file, sock_file, args.block, args.heartbeat))
     elif args.check:
         sys.exit(check_lock(sock_file))
     elif args.release:

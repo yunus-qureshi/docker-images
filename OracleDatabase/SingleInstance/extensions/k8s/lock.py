@@ -48,14 +48,14 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
             # to handle stale NFS locks
             mt = os.path.getmtime(lock_file)
             pulse = time.time() - mt
-            print('[%s]: mt %s, pulse %s' % (mt, pulse))
+            print('[%s]: mt %s, pulse %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), mt, pulse))
             if heartbeat < pulse:
                 # something is wrong
                 print('[%s]: Lost heartbeat by %s secs, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse, lock_file))
                 #lock_handle.close()
                 #os.remove(lock_file)
                 #lock_handle = open(lock_file, 'w')
-            time.sleep(0.1)
+            time.sleep(1)
 
     if os.fork():
         return 0

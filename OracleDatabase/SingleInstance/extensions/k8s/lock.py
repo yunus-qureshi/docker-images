@@ -33,7 +33,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     :param block:
     :return:
     """
-    print('[%s]: Acquiring lock on %s with heartbeat %s' %
+    print('[%s]: Acquiring lock on %s with heartbeat %s secs' %
          (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, heartbeat))
     lock_handle = open(lock_file, 'w')
     while True:

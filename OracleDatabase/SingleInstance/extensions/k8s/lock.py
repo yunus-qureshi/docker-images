@@ -35,7 +35,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     """
     print('[%s]: Acquiring lock on %s with heartbeat %s secs' %
          (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, heartbeat))
-    lock_handle = open(lock_file, 'a+')
+    lock_handle = open(lock_file, 'w')
     while True:
         try:
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -46,17 +46,15 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 print(e)
                 return 1
             # to handle stale NFS locks
-            hb = lock_handle.read()
-            if hb and hb.strip():
-                try:
-                    pulse = int(time.time()) - int(float(hb.strip()))
-                    if heartbeat < pulse:
-                        # something is wrong
-                        print('[%s]: Lost heartbeat by %s secs, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse, lock_file))
-                        lock_handle.close()
-                        os.remove(lock_file)
-                        lock_handle = open(lock_file, 'a+')
-                except ValueError: pass
+            mt = os.path.getmtime(lock_file)
+            pulse = time.time() - mt
+            print('[%s]: mt %s, pulse %s' % (mt, pulse))
+            if heartbeat < pulse:
+                # something is wrong
+                print('[%s]: Lost heartbeat by %s secs, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse, lock_file))
+                #lock_handle.close()
+                #os.remove(lock_file)
+                #lock_handle = open(lock_file, 'w')
             time.sleep(0.1)
 
     if os.fork():
@@ -95,9 +93,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
         threading.Thread(target=listen).start()
 
         while not lock_handle.closed:
-            lock_handle.truncate(0)
-            lock_handle.write(str(time.time()))
-            lock_handle.flush()
+            os.utime(lock_file, None)
             time.sleep(5)
 
 

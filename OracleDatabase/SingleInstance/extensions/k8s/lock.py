@@ -48,9 +48,9 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 return 1
             # to handle stale NFS locks
             pulse = time.time() - os.path.getmtime(lock_file)
-            if heartbeat < pulse:
+            if heartbeat < int(pulse):
                 # something is wrong
-                print('[%s]: Lost heartbeat %s, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse, lock_file))
+                print('[%s]: Lost heartbeat by %s secs, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse, lock_file))
                 lock_handle.close()
                 os.remove(lock_file)
                 lock_handle = open(lock_file, 'w')
@@ -138,6 +138,7 @@ def main():
     parser.add_argument('--release', action='store_true', dest='release')
     parser.add_argument('--file', dest='lock_file')
     parser.add_argument('--block', action='store_true', dest='block')
+    # heartbeat in secs
     parser.add_argument('--heartbeat', type=int, dest='heartbeat', default=30)
     args = parser.parse_args()
     if not args.lock_file:

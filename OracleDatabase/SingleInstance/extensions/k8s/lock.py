@@ -90,7 +90,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
         signal.signal(signal.SIGINT, release)
         threading.Thread(target=listen).start()
 
-        while not lock_handle.closed:
+        while True:
             lock_handle.truncate(0)
             lock_handle.write(str(time.time()))
             lock_handle.flush()

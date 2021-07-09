@@ -18,11 +18,14 @@ import signal
 import argparse
 import fcntl
 import tempfile
+import threading
 from multiprocessing.connection import Listener, Client
 
 # Multiprocess communication auth key
 AUTHKEY = 'vkidSQkgAHc='
 
+# in secs
+HEARTBEAT = 5
 
 def acquire_lock(lock_file, sock_file, block):
     """
@@ -43,6 +46,14 @@ def acquire_lock(lock_file, sock_file, block):
             if not block:
                 print(e)
                 return 1
+            # to handle stale NFS locks
+            mtime = os.path.getmtime(lock_file)
+            if time.time() - mtime > HEARTBEAT:
+                # something is wrong
+                print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
+                lock_handle.close()
+                os.remove(lock_file)
+                lock_handle = open(lock_file, 'w')
             time.sleep(0.1)
 
     if os.fork():
@@ -53,6 +64,13 @@ def acquire_lock(lock_file, sock_file, block):
             os.remove(sock_file)
         print('[%s]: Holding on to the lock using %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), sock_file))
         listener = Listener(address=sock_file, authkey=AUTHKEY)
+
+        def listen():
+            while True:
+                conn = listener.accept()
+                if conn.recv():
+                    break
+            release()
 
         def release(sig=None, frame=None):
             """
@@ -71,11 +89,11 @@ def acquire_lock(lock_file, sock_file, block):
 
         signal.signal(signal.SIGTERM, release)
         signal.signal(signal.SIGINT, release)
-        while True:
-            conn = listener.accept()
-            if conn.recv():
-                break
-        release()
+        threading.Thread(target=listen).start()
+
+        while not lock_handle.closed:
+            os.utime(lock_file, None)
+            time.sleep(HEARTBEAT)
 
 
 def check_lock(sock_file):

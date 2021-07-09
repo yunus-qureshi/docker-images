@@ -49,7 +49,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
             mtime = os.path.getmtime(lock_file)
             if time.time() - mtime > heartbeat:
                 # something is wrong
-                print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
+                print('[%s]: Lost heartbeat, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
                 lock_handle.close()
                 os.remove(lock_file)
                 lock_handle = open(lock_file, 'w')

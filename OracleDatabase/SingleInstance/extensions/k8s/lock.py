@@ -49,8 +49,8 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
             mt = os.path.getmtime(lock_file)
             at = os.path.getatime(lock_file)
             print('[%s]: mt %s, at %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), mt, at))
-            lmt = subprocess.check_output(['/bin/stat', '-c%Y', lock_file])
-            lat = subprocess.check_output(['/bin/stat', '-c%X', lock_file])
+            lmt = subprocess.check_output(['/bin/stat', '-c%Y', lock_file]).strip()
+            lat = subprocess.check_output(['/bin/stat', '-c%X', lock_file]).strip()
             pulse = time.time() - mt
             print('[%s]: lmt %s, lat %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lmt, lat))
             if heartbeat < pulse:
@@ -144,7 +144,7 @@ def main():
     parser.add_argument('--file', dest='lock_file')
     parser.add_argument('--block', action='store_true', dest='block')
     # heartbeat in secs
-    parser.add_argument('--heartbeat', type=int, dest='heartbeat', default=30)
+    parser.add_argument('--heartbeat', type=int, dest='heartbeat', default=60)
     args = parser.parse_args()
     if not args.lock_file:
         parser.print_help()

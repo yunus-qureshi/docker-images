@@ -49,8 +49,8 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
             mt = os.path.getmtime(lock_file)
             at = os.path.getatime(lock_file)
             print('[%s]: mt %s, at %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), mt, at))
-            lmt = subprocess.check_output([' stat', '-c%Y', lock_file])
-            lat = subprocess.check_output([' stat', '-c%X', lock_file])
+            lmt = subprocess.check_output(['/bin/stat', '-c%Y', lock_file])
+            lat = subprocess.check_output(['/bin/stat', '-c%X', lock_file])
             pulse = time.time() - mt
             print('[%s]: lmt %s, lat %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lmt, lat))
             if heartbeat < pulse:

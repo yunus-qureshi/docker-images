@@ -46,22 +46,15 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 print(e)
                 return 1
             # to handle stale NFS locks
-            mt = os.path.getmtime(lock_file)
-            at = os.path.getatime(lock_file)
-            print('[%s]: mt %s, at %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), mt, at))
-            lmt = subprocess.check_output(['/bin/stat', '-c%Y', lock_file]).strip()
-            lat = subprocess.check_output(['/bin/stat', '-c%X', lock_file]).strip()
-            pulse = time.time() - mt
-            print('[%s]: Now lmt %s, lat %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lmt, lat))
-            #lock_handle.close()
+            pulse = int(time.time() - os.path.getmtime(lock_file))
             if heartbeat < pulse:
                 # something is wrong
                 print('[%s]: Lost heartbeat by %s secs, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse, lock_file))
-                
-                #os.remove(lock_file)
-                #lock_handle = open(lock_file)
+                lock_handle.close()
+                os.remove(lock_file)
+                lock_handle = open(lock_file)
             
-            time.sleep(1)
+            time.sleep(0.1)
 
     if os.fork():
         return 0
@@ -146,7 +139,7 @@ def main():
     parser.add_argument('--file', dest='lock_file')
     parser.add_argument('--block', action='store_true', dest='block')
     # heartbeat in secs
-    parser.add_argument('--heartbeat', type=int, dest='heartbeat', default=60)
+    parser.add_argument('--heartbeat', type=int, dest='heartbeat', default=30)
     args = parser.parse_args()
     if not args.lock_file:
         parser.print_help()

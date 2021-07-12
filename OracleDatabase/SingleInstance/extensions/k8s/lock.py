@@ -18,7 +18,7 @@ import signal
 import argparse
 import fcntl
 import tempfile
-import threading
+import threading, subprocess
 from multiprocessing.connection import Listener, Client
 
 # Multiprocess communication auth key
@@ -47,8 +47,12 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 return 1
             # to handle stale NFS locks
             mt = os.path.getmtime(lock_file)
+            at = os.path.getatime(lock_file)
+            print('[%s]: mt %s, at %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), mt, at))
+            lmt = subprocess.check_output([' stat', '-c%Y', lock_file])
+            lat = subprocess.check_output([' stat', '-c%X', lock_file])
             pulse = time.time() - mt
-            print('[%s]: mt %s, pulse %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), mt, pulse))
+            print('[%s]: lmt %s, lat %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lmt, lat))
             if heartbeat < pulse:
                 # something is wrong
                 print('[%s]: Lost heartbeat by %s secs, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse, lock_file))

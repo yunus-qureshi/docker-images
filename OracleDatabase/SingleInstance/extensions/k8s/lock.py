@@ -35,9 +35,9 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     """
     print('[%s]: Acquiring lock on %s with heartbeat %s secs' %
          (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, heartbeat))
+    lock_handle = open(lock_file)
     while True:
         try:
-            lock_handle = open(lock_file)
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
             print('[%s]: Lock acquired on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
             break
@@ -52,8 +52,8 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
             lmt = subprocess.check_output(['/bin/stat', '-c%Y', lock_file]).strip()
             lat = subprocess.check_output(['/bin/stat', '-c%X', lock_file]).strip()
             pulse = time.time() - mt
-            print('[%s]: lmt %s, lat %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lmt, lat))
-            lock_handle.close()
+            print('[%s]: Now lmt %s, lat %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lmt, lat))
+            #lock_handle.close()
             if heartbeat < pulse:
                 # something is wrong
                 print('[%s]: Lost heartbeat by %s secs, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse, lock_file))

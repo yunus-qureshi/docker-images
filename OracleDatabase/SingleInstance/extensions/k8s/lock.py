@@ -35,11 +35,12 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     """
     print('[%s]: Acquiring lock on %s with heartbeat %s secs' %
          (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, heartbeat))
-    lock_handle = open(lock_file)
+    mode = 'r' if os.path.exists(lock_file) else 'w'
+    lock_handle = open(lock_file, mode)
     while True:
         try:
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            print('[%s]: Lock acquired on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
+            print('[%s]: Lock acquired on %s mode %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, mode))
             break
         except IOError as e:
             if not block:
@@ -52,7 +53,8 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 print('[%s]: Lost heartbeat by %s secs, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse, lock_file))
                 lock_handle.close()
                 os.remove(lock_file)
-                lock_handle = open(lock_file)
+                mode = 'r' if os.path.exists(lock_file) else 'w'
+                lock_handle = open(lock_file, mode)
             
             time.sleep(0.1)
 

@@ -180,7 +180,7 @@ else
   ipcs -s | awk ' /[0-9]/ {print $2}' | xargs -n1 ipcrm -s 2> /dev/null
 
   # Create database
-  $ORACLE_BASE/$CREATE_DB_FILE $ORACLE_SID $ORACLE_PDB $ORACLE_PWD ||(echo "Create Database Failed"; && exit 1;)
+  $ORACLE_BASE/$CREATE_DB_FILE $ORACLE_SID $ORACLE_PDB $ORACLE_PWD ||(echo "Create Database Failed"; exit 1;)
 
   # Check whether database is successfully created
   $ORACLE_BASE/$CHECK_DB_FILE

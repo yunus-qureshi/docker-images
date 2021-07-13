@@ -45,8 +45,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     while True:
         try:
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            print('[%s]: Lock acquired on %s with mode %s' %
-                 (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, mode))
+            print('[%s]: Lock acquired on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
             break
         except IOError as e:
             if not block:
@@ -57,7 +56,6 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
             if heartbeat < pulse:
                 # something is wrong
                 print('[%s]: Lost heartbeat by %s secs' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse))
-                lock_handle.close()
                 # get dir lock
                 dir_handle = os.open(os.path.dirname(lock_file), os.O_RDONLY)
                 fcntl.flock(dir_handle, fcntl.LOCK_EX)
@@ -69,6 +67,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                         continue            
                     pulse = int(time.time() - os.path.getmtime(lock_file))
                     mode = 'r'
+                    lock_handle.close()
                     if heartbeat < pulse:
                         print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
                         os.remove(lock_file)
@@ -76,6 +75,9 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                     lock_handle = open(lock_file, mode)
                     break
                 os.close(dir_handle)
+                print('[%s]: Reacquiring lock on %s with mode %s' %
+                     (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, mode))
+
             time.sleep(0.1)
 
     if os.fork():

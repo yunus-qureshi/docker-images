@@ -62,13 +62,19 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 dir_handle = os.open(os.path.dirname(lock_file), os.O_RDONLY)
                 fcntl.flock(dir_handle, fcntl.LOCK_EX)
                 # pulse check again after acquring dir lock
-                pulse = int(time.time() - os.path.getmtime(lock_file))
-                mode = 'r'
-                if heartbeat < pulse:
-                    print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
-                    os.remove(lock_file)
-                    mode = 'w'
-                lock_handle = open(lock_file, mode)
+                while True:
+                    if not os.path.exists(lock_file):
+                        # Another POD is still creating it
+                        time.sleep(0.1)
+                        continue            
+                    pulse = int(time.time() - os.path.getmtime(lock_file))
+                    mode = 'r'
+                    if heartbeat < pulse:
+                        print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
+                        os.remove(lock_file)
+                        mode = 'w'
+                    lock_handle = open(lock_file, mode)
+                    break
                 os.close(dir_handle)
             time.sleep(0.1)
 

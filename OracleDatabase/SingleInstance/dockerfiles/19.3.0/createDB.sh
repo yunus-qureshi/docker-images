@@ -54,37 +54,11 @@ function setupTnsnames {
 
 }
 
-########### SIGINT handler ############
-function _int2() {
-   echo "Stopping container."
-   echo "SIGINT received, shutting down database!"
-   sqlplus / as sysdba <<EOF
-   shutdown abort;
-   exit;
-EOF
-}
-
-########### SIGTERM handler ############
-function _term2() {
-   echo "Stopping container."
-   echo "SIGTERM received, shutting down database!"
-   sqlplus / as sysdba <<EOF
-   shutdown abort;
-   exit;
-EOF
-}
-
 ###################################
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
 ############# MAIN ################
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
 ###################################
-
-# Set SIGINT handler
-trap _int2 SIGINT
-
-# Set SIGTERM handler
-trap _term2 SIGTERM
 
 # Check whether ORACLE_SID is passed on
 export ORACLE_SID=${1:-ORCLCDB}

@@ -35,8 +35,12 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     """
     print('[%s]: Acquiring lock on %s with heartbeat %s secs' %
          (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, heartbeat))
+    # get dir lock first to check lock file existence
+    dir_handle = os.open(os.path.dirname(lock_file), os.O_RDONLY)
+    fcntl.flock(dir_handle, fcntl.LOCK_EX)
     mode = 'r' if os.path.exists(lock_file) else 'w'
     lock_handle = open(lock_file, mode)
+    os.close(dir_handle)
     while True:
         try:
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -50,12 +54,20 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
             pulse = int(time.time() - os.path.getmtime(lock_file))
             if heartbeat < pulse:
                 # something is wrong
-                print('[%s]: Lost heartbeat by %s secs, recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse, lock_file))
+                print('[%s]: Lost heartbeat by %s secs' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse))
                 lock_handle.close()
-                os.remove(lock_file)
-                mode = 'r' if os.path.exists(lock_file) else 'w'
+                # get dir lock
+                dir_handle = os.open(os.path.dirname(lock_file), os.O_RDONLY)
+                fcntl.flock(dir_handle, fcntl.LOCK_EX)
+                # pulse check again after acquring dir lock
+                pulse = int(time.time() - os.path.getmtime(lock_file))
+                mode = 'r'
+                if heartbeat < pulse:
+                    print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
+                    os.remove(lock_file)
+                    mode = 'w'
                 lock_handle = open(lock_file, mode)
-            
+                os.close(dir_handle)
             time.sleep(0.1)
 
     if os.fork():

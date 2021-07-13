@@ -23,7 +23,7 @@ from multiprocessing.connection import Listener, Client
 
 # Multiprocess communication auth key
 AUTHKEY = 'vkidSQkgAHc='
-
+DIR_LOCK_FILE = os.pathsep + '.dirlock'
 
 def acquire_lock(lock_file, sock_file, block, heartbeat):
     """
@@ -35,11 +35,11 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     """
 
     # get dir lock first to check lock file existence
-    dir_handle = os.open(os.path.dirname(lock_file), os.O_RDONLY)
-    fcntl.flock(dir_handle, fcntl.LOCK_EX)
+    dir_lh = open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w')
+    fcntl.flock(dir_lh, fcntl.LOCK_EX)
     mode = 'r' if os.path.exists(lock_file) else 'w'
     lock_handle = open(lock_file, mode)
-    os.close(dir_handle)
+    dir_lh.close()
     print('[%s]: Acquiring lock on %s with mode %s and heartbeat %s secs' %
          (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, mode, heartbeat))
     while True:
@@ -57,24 +57,18 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 # something is wrong
                 print('[%s]: Lost heartbeat by %s secs' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse))
                 # get dir lock
-                dir_handle = os.open(os.path.dirname(lock_file), os.O_RDONLY)
-                fcntl.flock(dir_handle, fcntl.LOCK_EX)
+                dir_lh = open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w')
+                fcntl.flock(dir_lh, fcntl.LOCK_EX)
                 # pulse check again after acquring dir lock
-                while True:
-                    if not os.path.exists(lock_file):
-                        # Another POD is still creating it
-                        time.sleep(0.1)
-                        continue            
-                    pulse = int(time.time() - os.path.getmtime(lock_file))
-                    mode = 'r'
-                    lock_handle.close()
-                    if heartbeat < pulse:
-                        print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
-                        os.remove(lock_file)
-                        mode = 'w'
-                    lock_handle = open(lock_file, mode)
-                    break
-                os.close(dir_handle)
+                pulse = int(time.time() - os.path.getmtime(lock_file))
+                mode = 'r'
+                lock_handle.close()
+                if heartbeat < pulse:
+                    print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
+                    os.remove(lock_file)
+                    mode = 'w'
+                lock_handle = open(lock_file, mode)
+                dir_lh.close()
                 print('[%s]: Reacquiring lock on %s with mode %s' %
                      (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, mode))
 

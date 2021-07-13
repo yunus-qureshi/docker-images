@@ -33,18 +33,19 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     :param block:
     :return:
     """
-    print('[%s]: Acquiring lock on %s with heartbeat %s secs' %
-         (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, heartbeat))
+
     # get dir lock first to check lock file existence
     dir_handle = os.open(os.path.dirname(lock_file), os.O_RDONLY)
     fcntl.flock(dir_handle, fcntl.LOCK_EX)
     mode = 'r' if os.path.exists(lock_file) else 'w'
     lock_handle = open(lock_file, mode)
     os.close(dir_handle)
+    print('[%s]: Acquiring lock on %s with mode %s and heartbeat %s secs' %
+         (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, mode, heartbeat))
     while True:
         try:
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            print('[%s]: Lock acquired on %s mode %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, mode))
+            print('[%s]: Lock acquired on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
             break
         except IOError as e:
             if not block:

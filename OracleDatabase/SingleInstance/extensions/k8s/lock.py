@@ -23,7 +23,7 @@ from multiprocessing.connection import Listener, Client
 
 # Multiprocess communication auth key
 AUTHKEY = 'vkidSQkgAHc='
-DIR_LOCK_FILE = os.pathsep + '.dirlock'
+DIR_LOCK_FILE = os.sep + '.dirlock'
 
 def acquire_lock(lock_file, sock_file, block, heartbeat):
     """

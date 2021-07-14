@@ -35,11 +35,11 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     """
 
     # get dir lock first to check lock file existence
-    dir_lh = open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w')
-    fcntl.flock(dir_lh, fcntl.LOCK_EX)
-    mode = 'r' if os.path.exists(lock_file) else 'w'
-    lock_handle = open(lock_file, mode)
-    dir_lh.close()
+    with open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w') as dir_lh:
+        fcntl.flock(dir_lh, fcntl.LOCK_EX)
+        mode = 'r' if os.path.exists(lock_file) else 'w'
+        lock_handle = open(lock_file, mode)
+
     print('[%s]: Acquiring lock on %s with mode %s and heartbeat %s secs' %
          (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, mode, heartbeat))
     while True:
@@ -57,18 +57,17 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 # something is wrong
                 print('[%s]: Lost heartbeat by %s secs' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse))
                 # get dir lock
-                dir_lh = open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w')
-                fcntl.flock(dir_lh, fcntl.LOCK_EX)
-                # pulse check again after acquring dir lock
-                pulse = int(time.time() - os.path.getmtime(lock_file))
-                mode = 'r'
-                lock_handle.close()
-                if heartbeat < pulse:
-                    print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
-                    os.remove(lock_file)
-                    mode = 'w'
-                lock_handle = open(lock_file, mode)
-                dir_lh.close()
+                with open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w') as dir_lh:
+                    fcntl.flock(dir_lh, fcntl.LOCK_EX)
+                    mode = 'r'
+                    lock_handle.close()
+                    # pulse check again after acquring dir lock
+                    if heartbeat < int(time.time() - os.path.getmtime(lock_file)):
+                        print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
+                        os.remove(lock_file)
+                        mode = 'w'
+                    lock_handle = open(lock_file, mode)
+
                 print('[%s]: Reacquiring lock on %s with mode %s' %
                      (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, mode))
 

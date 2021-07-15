@@ -45,12 +45,18 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     while True:
         try:
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w') as dir_lh:
+                fcntl.flock(dir_lh, fcntl.LOCK_EX)
+                os.utime(lock_file, None)
             print('[%s]: Lock acquired on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
             break
         except IOError as e:
             if not block:
                 print(e)
                 return 1
+
+            time.sleep(0.1)
+
             # to handle stale NFS locks
             pulse = int(time.time() - os.path.getmtime(lock_file))
             if heartbeat < pulse:
@@ -71,7 +77,6 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 print('[%s]: Reacquiring lock on %s with mode %s' %
                      (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file, mode))
 
-            time.sleep(0.1)
 
     if os.fork():
         return 0

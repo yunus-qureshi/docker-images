@@ -48,7 +48,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
             print('[%s]: Lock acquired' % (time.strftime('%Y:%m:%d %H:%M:%S')))
             with open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w') as dir_lh:
                 fcntl.flock(dir_lh, fcntl.LOCK_EX)
-                print('[%s]: Starting heartbeats' % (time.strftime('%Y:%m:%d %H:%M:%S')))
+                print('[%s]: Starting heartbeat' % (time.strftime('%Y:%m:%d %H:%M:%S')))
                 os.utime(lock_file, None)
             break
         except IOError as e:

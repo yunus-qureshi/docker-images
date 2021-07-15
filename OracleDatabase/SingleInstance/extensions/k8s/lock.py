@@ -40,7 +40,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
         mode = 'r' if os.path.exists(lock_file) else 'w'
         lock_handle = open(lock_file, mode)
 
-    print('[%s]: Acquiring lock on %s with mode %s and heartbeat %s secs' %
+    print('[%s]: Acquiring lock %s with mode %s and heartbeat %s secs' %
          (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file), mode, heartbeat))
     while True:
         try:
@@ -75,7 +75,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                         mode = 'w'
                     lock_handle = open(lock_file, mode)
 
-                print('[%s]: Reacquiring lock on %s with mode %s' %
+                print('[%s]: Reacquiring lock %s with mode %s' %
                      (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file), mode))
 
 
@@ -85,7 +85,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
         # Spawn a child process to hold on to the lock
         if os.path.exists(sock_file):
             os.remove(sock_file)
-        print('[%s]: Lock held on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file)))
+        print('[%s]: Lock held %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file)))
         listener = Listener(address=sock_file, authkey=AUTHKEY)
 
         def listen():
@@ -108,7 +108,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 time.sleep(30)
             lock_handle.close()
             listener.close()
-            print('[%s]: Lock released on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file)))
+            print('[%s]: Lock released %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file)))
 
         signal.signal(signal.SIGTERM, release)
         signal.signal(signal.SIGINT, release)
@@ -131,7 +131,7 @@ def check_lock(sock_file):
     cl = Client(address=sock_file, authkey=AUTHKEY)
     cl.send(False)
     cl.close()
-    print('[%s]: Lock held on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(sock_file)))
+    print('[%s]: Lock held %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(sock_file)))
     return 0
 
 
@@ -143,7 +143,7 @@ def release_lock(sock_file):
     """
     if not os.path.exists(sock_file):
         return 1
-    print('[%s]: Releasing lock on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(sock_file)))
+    print('[%s]: Releasing lock %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(sock_file)))
     cl = Client(address=sock_file, authkey=AUTHKEY)
     cl.send(True)
     cl.close()

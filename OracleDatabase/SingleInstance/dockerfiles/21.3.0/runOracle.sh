@@ -92,6 +92,7 @@ if [[ -f /sys/fs/cgroup/cgroup.controllers ]]; then
 else
   memory=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
 fi
+
 # Github issue #219: Prevent integer overflow,
 # only check if memory digits are less than 11 (single GB range and below) 
 if [[ ${memory} != "max" && ${#memory} -lt 11 && ${memory} -lt 8589934592 ]]; then

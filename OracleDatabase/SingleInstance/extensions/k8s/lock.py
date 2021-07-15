@@ -37,11 +37,13 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     # get dir lock first to check lock file existence
     with open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w') as dir_lh:
         fcntl.flock(dir_lh, fcntl.LOCK_EX)
-        mode = 'r' if os.path.exists(lock_file) else 'w'
-        lock_handle = open(lock_file, mode)
+        if not os.path.exists(lock_file):
+            print('[%s]: Creating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file)))
+            open(lock_file, 'w').close()
 
-    print('[%s]: Acquiring lock %s with mode %s and heartbeat %s secs' %
-         (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file), mode, heartbeat))
+    lock_handle = open(lock_file)
+    print('[%s]: Acquiring lock %s with heartbeat %s secs' %
+         (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file), heartbeat))
     while True:
         try:
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -66,17 +68,16 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
                 # get dir lock
                 with open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w') as dir_lh:
                     fcntl.flock(dir_lh, fcntl.LOCK_EX)
-                    mode = 'r'
                     lock_handle.close()
                     # pulse check again after acquring dir lock
                     if heartbeat < int(time.time() - os.path.getmtime(lock_file)):
                         print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file)))
                         os.remove(lock_file)
-                        mode = 'w'
-                    lock_handle = open(lock_file, mode)
+                        open(lock_file, 'w').close()
 
-                print('[%s]: Reacquiring lock %s with mode %s' %
-                     (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file), mode))
+                lock_handle = open(lock_file)
+                print('[%s]: Reacquiring lock %s' %
+                     (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file)))
 
 
     if os.fork():

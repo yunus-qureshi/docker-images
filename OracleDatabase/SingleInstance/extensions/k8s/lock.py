@@ -45,10 +45,11 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
     while True:
         try:
             fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            print('[%s]: Lock acquired' % (time.strftime('%Y:%m:%d %H:%M:%S')))
             with open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w') as dir_lh:
                 fcntl.flock(dir_lh, fcntl.LOCK_EX)
+                print('[%s]: Start heartbeats on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
                 os.utime(lock_file, None)
-            print('[%s]: Lock acquired on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
             break
         except IOError as e:
             if not block:

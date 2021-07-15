@@ -65,10 +65,10 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
             if heartbeat < pulse:
                 # something is wrong
                 print('[%s]: Lost heartbeat by %s secs' % (time.strftime('%Y:%m:%d %H:%M:%S'), pulse))
+                lock_handle.close()
                 # get dir lock
                 with open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w') as dir_lh:
                     fcntl.flock(dir_lh, fcntl.LOCK_EX)
-                    lock_handle.close()
                     # pulse check again after acquring dir lock
                     if heartbeat < int(time.time() - os.path.getmtime(lock_file)):
                         print('[%s]: Recreating %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(lock_file)))

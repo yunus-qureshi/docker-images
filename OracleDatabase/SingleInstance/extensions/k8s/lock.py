@@ -131,7 +131,7 @@ def check_lock(sock_file):
     cl = Client(address=sock_file, authkey=AUTHKEY)
     cl.send(False)
     cl.close()
-    print('[%s]: Lock held on' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(sock_file)))
+    print('[%s]: Lock held on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), os.path.basename(sock_file)))
     return 0
 
 

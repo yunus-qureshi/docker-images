@@ -48,7 +48,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
             print('[%s]: Lock acquired' % (time.strftime('%Y:%m:%d %H:%M:%S')))
             with open(os.path.dirname(lock_file) + DIR_LOCK_FILE, 'w') as dir_lh:
                 fcntl.flock(dir_lh, fcntl.LOCK_EX)
-                print('[%s]: Start heartbeats on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
+                print('[%s]: Starting heartbeats' % (time.strftime('%Y:%m:%d %H:%M:%S')))
                 os.utime(lock_file, None)
             break
         except IOError as e:
@@ -85,7 +85,7 @@ def acquire_lock(lock_file, sock_file, block, heartbeat):
         # Spawn a child process to hold on to the lock
         if os.path.exists(sock_file):
             os.remove(sock_file)
-        print('[%s]: Holding on to the lock using %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), sock_file))
+        print('[%s]: Lock held on %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), lock_file))
         listener = Listener(address=sock_file, authkey=AUTHKEY)
 
         def listen():

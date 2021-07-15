@@ -143,7 +143,7 @@ def release_lock(sock_file):
     """
     if not os.path.exists(sock_file):
         return 1
-    print('[%s]: Connecting to the lock process %s' % (time.strftime('%Y:%m:%d %H:%M:%S'), sock_file))
+    print('[%s]: Releasing lock' % (time.strftime('%Y:%m:%d %H:%M:%S')))
     cl = Client(address=sock_file, authkey=AUTHKEY)
     cl.send(True)
     cl.close()

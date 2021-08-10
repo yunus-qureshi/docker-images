@@ -75,12 +75,12 @@ fi;
 export ORACLE_PWD=${3:-"`openssl rand -base64 8`1"}
 
 # If wallet is present for database credentials then prepare dbca options to use
-if [[ -n "${ORACLE_WALLET_DIR}" ]] && [[ -f $ORACLE_WALLET_DIR/ewallet.p12 ]]; then
+if [[ -n "${WALLET_DIR}" ]] && [[ -f $WALLET_DIR/ewallet.p12 ]]; then
   # Oracle Wallet is present
-  export DBCA_OPTIONS="-useWalletForDBCredentials true  -dbCredentialsWalletLocation ${ORACLE_WALLET_DIR}"
+  export DBCA_CRED_OPTIONS="-useWalletForDBCredentials true  -dbCredentialsWalletLocation ${WALLET_DIR}"
 else
-  if [[ "${CLONE_DB}" == "true" ]]; then
-    export DBCA_OPTIONS="-sysPassword ${ORACLE_PWD}"
+  if [[ "${CLONE_DB}" == "true" ]] || [[ "${STANDBY_DB}" == "true" ]]; then
+    export DBCA_CRED_OPTIONS="-sysPassword ${ORACLE_PWD}"
   fi
   echo "ORACLE PASSWORD FOR SYS, SYSTEM AND PDBADMIN: $ORACLE_PWD";
 fi
@@ -99,12 +99,12 @@ if [[ "${CLONE_DB}" == "true" ]] || [[ "${STANDBY_DB}" == "true" ]]; then
   # Creating the database using the dbca command
   if [ "${STANDBY_DB}" = "true" ]; then
     # Creating standby database
-    dbca -silent -createDuplicateDB -gdbName ${PRIMARY_DB_NAME} -primaryDBConnectionString ${PRIMARY_DB_CONN_STR} ${DBCA_OPTIONS} -sid ${ORACLE_SID} -createAsStandby -dbUniquename ${ORACLE_SID} ORACLE_HOSTNAME=${ORACLE_HOSTNAME} ||
+    dbca -silent -createDuplicateDB -gdbName ${PRIMARY_DB_NAME} -primaryDBConnectionString ${PRIMARY_DB_CONN_STR} ${DBCA_CRED_OPTIONS} -sid ${ORACLE_SID} -createAsStandby -dbUniquename ${ORACLE_SID} ORACLE_HOSTNAME=${ORACLE_HOSTNAME} ||
       cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID/$ORACLE_SID.log ||
       cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID.log
   else
     # Creating clone database after duplicating a primary database; CLONE_DB is set to true here
-    dbca -silent -createDuplicateDB -gdbName ${ORACLE_SID} -primaryDBConnectionString ${PRIMARY_DB_CONN_STR} ${DBCA_OPTIONS} -sid ${ORACLE_SID} -databaseConfigType SINGLE -useOMF true -dbUniquename ${ORACLE_SID} ORACLE_HOSTNAME=${ORACLE_HOSTNAME} ||
+    dbca -silent -createDuplicateDB -gdbName ${ORACLE_SID} -primaryDBConnectionString ${PRIMARY_DB_CONN_STR} ${DBCA_CRED_OPTIONS} -sid ${ORACLE_SID} -databaseConfigType SINGLE -useOMF true -dbUniquename ${ORACLE_SID} ORACLE_HOSTNAME=${ORACLE_HOSTNAME} ||
       cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID/$ORACLE_SID.log ||
       cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID.log
   fi
@@ -128,7 +128,7 @@ fi
 cp $ORACLE_BASE/$CONFIG_RSP $ORACLE_BASE/dbca.rsp
 sed -i -e "s|###ORACLE_SID###|$ORACLE_SID|g" $ORACLE_BASE/dbca.rsp
 sed -i -e "s|###ORACLE_PDB###|$ORACLE_PDB|g" $ORACLE_BASE/dbca.rsp
-if [[ -n "${ORACLE_WALLET_DIR}" ]] && [[ -f $ORACLE_WALLET_DIR/ewallet.p12 ]]; then
+if [[ -n "${WALLET_DIR}" ]] && [[ -f $WALLET_DIR/ewallet.p12 ]]; then
   # Deleting password options from dbca response file as wallet will be used for credentials
   sed -i -e "/###ORACLE_PWD###/d" $ORACLE_BASE/dbca.rsp
 else
@@ -164,7 +164,7 @@ export ARCHIVELOG_DIR=$ORACLE_BASE/oradata/$ORACLE_SID/$ARCHIVELOG_DIR_NAME
 
 # Start LISTENER and run DBCA
 lsnrctl start &&
-dbca -silent -createDatabase -enableArchive $ENABLE_ARCHIVELOG -archiveLogDest $ARCHIVELOG_DIR ${DBCA_OPTIONS} -responseFile $ORACLE_BASE/dbca.rsp ||
+dbca -silent -createDatabase -enableArchive $ENABLE_ARCHIVELOG -archiveLogDest $ARCHIVELOG_DIR ${DBCA_CRED_OPTIONS} -responseFile $ORACLE_BASE/dbca.rsp ||
  cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID/$ORACLE_SID.log ||
  cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID.log
 

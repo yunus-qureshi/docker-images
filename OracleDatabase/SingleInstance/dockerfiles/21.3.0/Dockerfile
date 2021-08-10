@@ -73,7 +73,7 @@ ENV ORACLE_BASE=/opt/oracle \
     CREATE_PDB=true \
     CHECKPOINT_FILE_EXTN=".created" \
     # Directory for keeping Oracle Wallet
-    ORACLE_WALLET_DIR=""
+    WALLET_DIR=""
 
 # Use second ENV so that variable get substituted
 ENV PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch/:/usr/sbin:$PATH \

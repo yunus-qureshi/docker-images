@@ -82,7 +82,12 @@ else
   if [[ "${CLONE_DB}" == "true" ]] || [[ "${STANDBY_DB}" == "true" ]]; then
     export DBCA_CRED_OPTIONS="-sysPassword ${ORACLE_PWD}"
   fi
-  echo "ORACLE PASSWORD FOR SYS, SYSTEM AND PDBADMIN: $ORACLE_PWD";
+
+  # Displaying password only when password is auto-generated and Oracle wallet is not used
+  if [[ -z "${3+x}" ]]; then
+    echo "ORACLE PASSWORD FOR SYS, SYSTEM AND PDBADMIN: $ORACLE_PWD";
+  fi
+
 fi
 
 # Clone DB/ Standby DB creation path

@@ -80,7 +80,9 @@ if [[ -n "${WALLET_DIR}" ]] && [[ -f $WALLET_DIR/ewallet.p12 ]]; then
   export DBCA_CRED_OPTIONS="-useWalletForDBCredentials true  -dbCredentialsWalletLocation ${WALLET_DIR}"
 else
   if [[ "${CLONE_DB}" == "true" ]] || [[ "${STANDBY_DB}" == "true" ]]; then
-    export DBCA_CRED_OPTIONS="-sysPassword ${ORACLE_PWD}"
+    # Creating temporary response file containing sysPassword for clone/standby cases
+    echo "sysPassword=${ORACLE_PWD}" > $ORACLE_BASE/dbca.rsp
+    export DBCA_CRED_OPTIONS=" -responseFile $ORACLE_BASE/dbca.rsp"
   fi
 
   # Displaying password only when password is auto-generated and Oracle wallet is not used
@@ -125,6 +127,11 @@ if [[ "${CLONE_DB}" == "true" ]] || [[ "${STANDBY_DB}" == "true" ]]; then
   
   # Starting Listener
   lsnrctl start;
+
+  # Remove temporary response file
+  if [ -f $ORACLE_BASE/dbca.rsp ]; then
+    rm $ORACLE_BASE/dbca.rsp
+  fi
 
   exit 0
 fi
